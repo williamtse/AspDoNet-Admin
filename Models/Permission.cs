@@ -7,6 +7,7 @@ namespace MvcMovie.Models
 {
     public class Permission
     {
+        public int ID { get; set; }
         //标识
         public string Slug { get; set; }
         //名称

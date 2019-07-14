@@ -1,0 +1,55 @@
+﻿@model MvcMovie.Models.Menu
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Menu</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ParentID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ParentID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Order)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Order)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Icon)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Icon)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Uri)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Uri)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Permission)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Permission)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
