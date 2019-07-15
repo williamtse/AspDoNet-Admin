@@ -48,9 +48,23 @@ namespace MvcMovie.Controllers
         // GET: Permissions/Create
         public IActionResult Create()
         {
+            List<Option> options = new List<Option>();
+            
+            options.Add(new Option{ text="GET", value="GET" });
+            options.Add(new Option{ text="POST", value="POST" });
+            options.Add(new Option{ text="PUT", value="PUT" });
+            options.Add(new Option{ text="DELET", value="DELET" });
+            options.Add(new Option{ text="CONNECT", value="CONNECT" });
+            options.Add(new Option{ text="OPTIONS", value="OPTIONS" });
+            options.Add(new Option{ text="TRACE", value="TRACE" });
+            options.Add(new Option{ text="PATCH", value="PATCH" });
+
             Form form = new Form();
-            form.Text("Test", "Test");
-            ViewData["form"] = form.GetContent();
+            form.Text("Slug", "标识");
+            form.Text("Name", "名称");
+            form.MultipleSelect("HttpMethods", "Http方法", options);
+            form.Textarea("HttpPath", "Http路径");
+            ViewData["form"] = form;
             return View();
         }
 

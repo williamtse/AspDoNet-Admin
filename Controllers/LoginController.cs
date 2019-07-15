@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using MvcMovie.Models;
@@ -51,7 +52,6 @@ namespace MvcMovie.Controllers
                 return JsonConvert.SerializeObject(new JsonResponse(Error.LOGIN_ERROR, _localizer["Username or password is wrong"]));
             }
             HttpContext.Session.Set<User>("user", user);
-            User uuu = HttpContext.Session.Get<User>("user");
             return JsonConvert.SerializeObject(new JsonResponse(reurl));
         }
     }
