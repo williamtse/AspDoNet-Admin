@@ -1,10 +1,8 @@
 ﻿@model MvcMovie.Models.Permission
-@using BootstrapFormHelper
 @{
     ViewData["Title"] = "Create";
-    Form form = @ViewData["form"] as Form;
-    var formHtml = form.GetContent();
-    var script = form.GetScript();
+    var formHtml = ViewData["formHtml"];
+    var script = ViewData["script"];
 }
 
 <h2>Create</h2>
@@ -21,7 +19,9 @@
     <a asp-action="Index">Back to List</a>
 </div>
 <script>
+    
     $(function () {
+        
         @Html.Raw(script)
     });
 </script>

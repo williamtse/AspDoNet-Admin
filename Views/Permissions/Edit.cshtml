@@ -1,7 +1,8 @@
 ﻿@model MvcMovie.Models.Permission
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Create";
+    var formHtml = ViewData["formHtml"];
+    var script = ViewData["script"];
 }
 
 <h2>Edit</h2>
@@ -9,43 +10,8 @@
 <h4>Permission</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="HttpMethods" class="control-label"></label>
-                <select class="form-control http_method js-example-basic-multiple" multiple="multiple">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELET">DELET</option>
-                    <option value="PATCH">PATCH</option>
-                    <option value="OPTIONS">OPTIONS</option>
-                    <option value="HEAD">HEAD</option>
-                </select>
-                <input asp-for="HttpMethods" type="hidden" class="form-control" />
-                <span asp-validation-for="HttpMethods" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="HttpPath" class="control-label"></label>
-                <input asp-for="HttpPath" class="form-control" />
-                <span asp-validation-for="HttpPath" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </form>
+    <div class="col-md-8">
+        @Html.Raw(formHtml)
     </div>
 </div>
 
@@ -54,15 +20,6 @@
 </div>
 <script>
     $(function () {
-        var methods = "@Model.HttpMethods";
-        $('.http_method').val(methods.split(',')).trigger('change');
-        $(".http_method").select2({ "allowClear": true, "placeholder": { "id": "", "text": "HTTP\u65b9\u6cd5" } });
-        $(".http_method").change(function () {
-            var methods = $(this).val()
-            $('input[name=HttpMethods]').val(methods.join(','))
-        })
+        @Html.Raw(script)
     });
 </script>
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

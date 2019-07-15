@@ -26,17 +26,17 @@ namespace MvcMovie.Controllers
             return View();
         }
         [HttpPost]
-        public string DoLogin(string Username, string Password, string reurl = "/")
+        public JsonResult DoLogin(string Username, string Password, string reurl = "/")
         {
             User user = _context.User.Where(u => u.Username == Username).FirstOrDefault<User>();
             if (user == null)
             {
-                return JsonConvert.SerializeObject(new JsonResponse(Error.LOGIN_ERROR, _localizer["Username or password is wrong"]));
+                return Json(new JsonResponse(Error.LOGIN_ERROR, _localizer["Username or password is wrong"]));
             }
 
             if (Password == null)
             {
-                return JsonConvert.SerializeObject(new JsonResponse(Error.LOGIN_ERROR, _localizer["Password is required"]));
+                return Json(new JsonResponse(Error.LOGIN_ERROR, _localizer["Password is required"]));
             }
             byte[] salt = Convert.FromBase64String(user.Salt);;
 
@@ -49,10 +49,10 @@ namespace MvcMovie.Controllers
 
             if(user.Password != hashed)
             {
-                return JsonConvert.SerializeObject(new JsonResponse(Error.LOGIN_ERROR, _localizer["Username or password is wrong"]));
+                return Json(new JsonResponse(Error.LOGIN_ERROR, _localizer["Username or password is wrong"]));
             }
             HttpContext.Session.Set<User>("user", user);
-            return JsonConvert.SerializeObject(new JsonResponse(reurl));
+            return Json(new JsonResponse(reurl));
         }
     }
 }

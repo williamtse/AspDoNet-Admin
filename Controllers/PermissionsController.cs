@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BootstrapFormHelper;
+using BootstrapHtmlHelper.FormHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -45,26 +45,34 @@ namespace MvcMovie.Controllers
             return View(permission);
         }
 
-        // GET: Permissions/Create
-        public IActionResult Create()
+        public Form<Permission> Form()
         {
             List<Option> options = new List<Option>();
-            
-            options.Add(new Option{ text="GET", value="GET" });
-            options.Add(new Option{ text="POST", value="POST" });
-            options.Add(new Option{ text="PUT", value="PUT" });
-            options.Add(new Option{ text="DELET", value="DELET" });
-            options.Add(new Option{ text="CONNECT", value="CONNECT" });
-            options.Add(new Option{ text="OPTIONS", value="OPTIONS" });
-            options.Add(new Option{ text="TRACE", value="TRACE" });
-            options.Add(new Option{ text="PATCH", value="PATCH" });
 
-            Form form = new Form();
+            options.Add(new Option { text = "GET", value = "GET" });
+            options.Add(new Option { text = "POST", value = "POST" });
+            options.Add(new Option { text = "PUT", value = "PUT" });
+            options.Add(new Option { text = "DELET", value = "DELET" });
+            options.Add(new Option { text = "CONNECT", value = "CONNECT" });
+            options.Add(new Option { text = "OPTIONS", value = "OPTIONS" });
+            options.Add(new Option { text = "TRACE", value = "TRACE" });
+            options.Add(new Option { text = "PATCH", value = "PATCH" });
+
+            Form<Permission> form = new Form<Permission>();
             form.Text("Slug", "标识");
             form.Text("Name", "名称");
             form.MultipleSelect("HttpMethods", "Http方法", options);
             form.Textarea("HttpPath", "Http路径");
-            ViewData["form"] = form;
+            return form;
+        }
+
+        // GET: Permissions/Create
+        public IActionResult Create()
+        {
+            Form<Permission> form = Form();
+            form.Action("/Permissions/Create");
+            ViewData["formHtml"] = form.GetContent();
+            ViewData["script"] = form.GetScript();
             return View();
         }
 
@@ -97,6 +105,12 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
+
+            Form<Permission> form = Form();
+            form.Action("/Permissions/Edit/"+id.ToString());
+            form.Edit(permission);
+            ViewData["formHtml"] = form.GetContent();
+            ViewData["script"] = form.GetScript();
             return View(permission);
         }
 

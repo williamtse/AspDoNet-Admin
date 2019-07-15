@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BootstrapHtmlHelper.UI;
+using BootstrapHtmlHelper.Util.Tree;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MvcMovie.Extensions;
 using MvcMovie.Models;
+
 
 namespace MvcMovie.Controllers
 {
-    public class MenusController : Controller
+    public class MenusController : AController
     {
         private readonly MvcMovieContext _context;
 
-        public MenusController(MvcMovieContext context)
+        public MenusController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context) : base(_httpContextAccessor)
         {
             _context = context;
         }
@@ -21,9 +26,32 @@ namespace MvcMovie.Controllers
         // GET: Menus
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Menu.ToListAsync());
+            List<Menu> menus = _context.Menu.ToList<Menu>();
+            List<Node> nodes = new List<Node>();
+            Dictionary<int, Menu> dic = new Dictionary<int, Menu>();
+            foreach (Menu menu in menus)
+            {
+                Node node = new Node();
+                node.ID = menu.ID;
+                node.ParentID = menu.ParentID;
+                node.Title = menu.Title;
+                nodes.Add(node);
+                dic.Add(menu.ID, menu);
+            }
+            Nestable nestable = new Nestable(nodes, "tree", (node)=> {
+                Menu menu = dic[node.ID];
+                return "<i class='fa "+ menu.Icon + "'></i><strong>" + menu.Title + "</strong>"
+                + "<a href='" + menu.Uri + "' class='dd-nodrag'>" + menu.Uri + "</a>"
+                + "<span class=\"pull-right dd-nodrag\">"
+                + "<a href = \"/Menus/Edit/" + menu.ID + "\" ><i class=\"fa fa-edit\"></i></a>"
+                + "<a href = \"javascript:void(0);\" data-id=\"" + menu.ID + "\" class=\"tree_branch_delete\"><i class=\"fa fa-trash\"></i></a>"
+                + "</span>"
+                ;
+            });
+            ViewData["menuList"] = nestable.GetContent();
+            return View();
         }
-
+        
         // GET: Menus/Details/5
         public async Task<IActionResult> Details(int? id)
         {
