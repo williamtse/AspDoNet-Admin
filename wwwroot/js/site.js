@@ -4,9 +4,7 @@
 // Write your JavaScript code.
 $(function () {
     $('.tree_branch_delete').unbind('click').click(function () {
-
         var id = $(this).data('id');
-
         swal({
             title: "确认删除?",
             type: "warning",
