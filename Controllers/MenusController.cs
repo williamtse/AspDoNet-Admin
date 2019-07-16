@@ -57,12 +57,20 @@ namespace MvcMovie.Controllers
             {
                 form.Edit(menu);
                 form.Action("/Menus/Edit");
+<<<<<<< HEAD
             }
             else
             {
                 form.Action("/Menus/Index");
             }
 
+=======
+            }
+            else
+            {
+                form.Action("/Menus/Create");
+            }
+>>>>>>> 4f9506f35d53fa8705af9295d5a7d246a6d5c6d4
             form.TreeSelect("ParentID", "父级菜单", tree);
             form.Text("Title", "名称");
             form.Text("Icon", "图标");
