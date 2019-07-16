@@ -64,8 +64,12 @@ namespace MvcMovie.Controllers
             if (menu != null)
             {
                 form.Edit(menu);
+                form.Action("/Menus/Edit");
             }
-            form.Action("/Menus/Create");
+            else
+            {
+                form.Action("/Menus/Create");
+            }
             form.TreeSelect("ParentID", "父级菜单", tree);
             form.Text("Title", "名称");
             form.Text("Icon", "图标");

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<MvcMovie.Models.Menu>
+﻿@model MvcMovie.Models.Menu
 
 @{
     ViewData["Title"] = "Index";
@@ -23,5 +23,12 @@
         $('#tree').nestable([]);
 
         @Html.Raw(script)
+
+        $('.tree_branch_delete').click(function(){
+            var id = $(this).data('id');
+            if(confirm("确定要删除这个菜单项吗？")){
+                location.href="/Menus/Delete?pajx=id="+id;
+            }
+        });
     })
 </script>
