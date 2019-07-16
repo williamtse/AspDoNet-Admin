@@ -25,7 +25,7 @@ namespace MvcMovie.Controllers
         }
 
         // GET: Menus
-        public async Task<IActionResult> Index(int?ID)
+        public async Task<IActionResult> Index()
         {
             List<Menu> menus = _context.Menu.ToList<Menu>();
             List<Node> nodes = new List<Node>();
@@ -39,19 +39,11 @@ namespace MvcMovie.Controllers
                 nodes.Add(node);
                 dic.Add(menu.ID, menu);
             }
-            Nestable nestable = new Nestable(nodes, "tree", (node)=> {
-                Menu menu = dic[node.ID];
-                return "<i class='fa "+ menu.Icon + "'></i><strong>" + menu.Title + "</strong>"
-                + "<a href='" + menu.Uri + "' class='dd-nodrag'>" + menu.Uri + "</a>"
-                + "<span class=\"pull-right dd-nodrag\">"
-                + "<a href = \"/Menus/Index?ID=" + menu.ID + "\" ><i class=\"fa fa-edit\"></i></a>"
-                + "<a href = \"javascript:void(0);\" data-id=\"" + menu.ID + "\" class=\"tree_branch_delete\"><i class=\"fa fa-trash\"></i></a>"
-                + "</span>"
-                ;
-            });
+            MenuNestable nestable = new MenuNestable(dic, nodes, "tree");
             ViewData["menuList"] = nestable.GetContent();
+            ViewData["nestableScript"] = nestable.GetScript();
 
-            Form<Menu> form = Form(nodes, ID==null?null:_context.Menu.Where(m=>m.ID==ID).FirstOrDefault<Menu>());
+            Form<Menu> form = Form(nodes);
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
 
@@ -65,11 +57,20 @@ namespace MvcMovie.Controllers
             {
                 form.Edit(menu);
                 form.Action("/Menus/Edit");
+<<<<<<< HEAD
+            }
+            else
+            {
+                form.Action("/Menus/Index");
+            }
+
+=======
             }
             else
             {
                 form.Action("/Menus/Create");
             }
+>>>>>>> 4f9506f35d53fa8705af9295d5a7d246a6d5c6d4
             form.TreeSelect("ParentID", "父级菜单", tree);
             form.Text("Title", "名称");
             form.Text("Icon", "图标");
@@ -119,17 +120,16 @@ namespace MvcMovie.Controllers
         // POST: Menus/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost, ActionName("Index")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu)
+        public async Task Create([Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(menu);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
-            return View(menu);
+            httpContextAccessor.HttpContext.Response.Redirect($"/Menus/Index");
         }
 
         // GET: Menus/Edit/5
@@ -145,7 +145,23 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
-            return View(menu);
+
+            List<Menu> menus = _context.Menu.ToList<Menu>();
+            List<Node> nodes = new List<Node>();
+            Dictionary<int, Menu> dic = new Dictionary<int, Menu>();
+            foreach (Menu m in menus)
+            {
+                Node node = new Node();
+                node.ID = m.ID;
+                node.ParentID = m.ParentID;
+                node.Title = m.Title;
+                nodes.Add(node);
+                dic.Add(m.ID, menu);
+            }
+            Form<Menu> form = Form(nodes, menu);
+            ViewData["form"] = form.GetContent();
+            ViewData["script"] = form.GetScript();
+            return View();
         }
 
         // POST: Menus/Edit/5
@@ -183,33 +199,15 @@ namespace MvcMovie.Controllers
             return View(menu);
         }
 
-        // GET: Menus/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var menu = await _context.Menu
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (menu == null)
-            {
-                return NotFound();
-            }
-
-            return View(menu);
-        }
-
         // POST: Menus/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<JsonResult> DeleteConfirmed(int id)
         {
             var menu = await _context.Menu.FindAsync(id);
             _context.Menu.Remove(menu);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Json(new JsonResponse());
         }
 
         private bool MenuExists(int id)
