@@ -5,6 +5,8 @@
     var menuList = ViewData["menuList"];
     var form = ViewData["form"];
     var script = ViewData["script"];
+    var nestableScript = ViewData["nestableScript"];
+
 }
 
 <div class="row">
@@ -21,7 +23,7 @@
 <script>
     $(function () {
         $('#tree').nestable([]);
-
+        @Html.Raw(nestableScript)
         @Html.Raw(script)
     })
 </script>
