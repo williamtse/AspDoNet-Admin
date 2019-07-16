@@ -3,23 +3,25 @@
 @{
     ViewData["Title"] = "Index";
     var menuList = ViewData["menuList"];
+    var form = ViewData["form"];
+    var script = ViewData["script"];
 }
 
-<h2>Index</h2>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <div class="row">
     <div class="col-sm-6">
         @Html.Raw(menuList)
     </div>
+
+    <div class="col-sm-6">
+        @Html.Raw(form)
+    </div>
 </div>
-<script src="/js/jquery.nestable.js"></script>
-<link href="~/css/nestable.css" rel="stylesheet"/>
+
 
 <script>
     $(function () {
         $('#tree').nestable([]);
+
+        @Html.Raw(script)
     })
 </script>

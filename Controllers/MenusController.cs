@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BootstrapHtmlHelper.FormHelper;
 using BootstrapHtmlHelper.UI;
 using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,7 @@ namespace MvcMovie.Controllers
         }
 
         // GET: Menus
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int?ID)
         {
             List<Menu> menus = _context.Menu.ToList<Menu>();
             List<Node> nodes = new List<Node>();
@@ -43,13 +44,48 @@ namespace MvcMovie.Controllers
                 return "<i class='fa "+ menu.Icon + "'></i><strong>" + menu.Title + "</strong>"
                 + "<a href='" + menu.Uri + "' class='dd-nodrag'>" + menu.Uri + "</a>"
                 + "<span class=\"pull-right dd-nodrag\">"
-                + "<a href = \"/Menus/Edit/" + menu.ID + "\" ><i class=\"fa fa-edit\"></i></a>"
+                + "<a href = \"/Menus/Index?ID=" + menu.ID + "\" ><i class=\"fa fa-edit\"></i></a>"
                 + "<a href = \"javascript:void(0);\" data-id=\"" + menu.ID + "\" class=\"tree_branch_delete\"><i class=\"fa fa-trash\"></i></a>"
                 + "</span>"
                 ;
             });
             ViewData["menuList"] = nestable.GetContent();
+
+            Form<Menu> form = Form(nodes, ID==null?null:_context.Menu.Where(m=>m.ID==ID).FirstOrDefault<Menu>());
+            ViewData["form"] = form.GetContent();
+            ViewData["script"] = form.GetScript();
+
             return View();
+        }
+
+        private Form<Menu> Form(List<Node> tree, Menu menu=null)
+        {
+            Form<Menu> form = new Form<Menu>();
+            if (menu != null)
+            {
+                form.Edit(menu);
+            }
+            form.Action("/Menus/Create");
+            form.TreeSelect("ParentID", "父级菜单", tree);
+            form.Text("Title", "名称");
+            form.Text("Icon", "图标");
+            form.Text("Uri", "路径");
+            List<Role> roles = _context.Role.ToList<Role>();
+            List<Option> options = new List<Option>();
+            foreach(Role role in roles)
+            {
+                options.Add(new Option { value = role.ID.ToString(), text = role.Name });
+            }
+            form.MultipleSelect("Roles", "角色", options);
+
+            List<Permission> permissions = _context.Permission.ToList<Permission>();
+            List<Option> options2 = new List<Option>();
+            foreach (Permission permission in permissions)
+            {
+                options2.Add(new Option { value = permission.ID.ToString(), text = permission.Name });
+            }
+            form.Select("Permission", "权限", options2);
+            return form;
         }
         
         // GET: Menus/Details/5
