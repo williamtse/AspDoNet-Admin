@@ -13,13 +13,11 @@ namespace MvcMovie.Controllers
 {
     public class UsersController : AController
     {
-        private readonly MvcMovieContext _context;
-        public UsersController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context) : base(_httpContextAccessor)
+        public UsersController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
         {
+            httpContextAccessor = _httpContextAccessor;
             _context = context;
         }
-        
-
         // GET: Users
         public async Task<IActionResult> Index()
         {

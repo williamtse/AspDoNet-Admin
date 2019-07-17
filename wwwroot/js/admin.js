@@ -44,4 +44,51 @@
         }
         NProgress.done();
     });
-})
+
+
+});
+
+$(function () {
+    $('.sidebar-menu li:not(.has-treeview) > a').on('click', function () {
+        $('.sidebar-menu .active').removeClass('active');
+        $(this).addClass('active');
+    });
+    var menu = $('.sidebar-menu li > a.active').parent().addClass('active');
+    menu.parents('ul.nav-treeview').show();
+    menu.parents('li.has-treeview').addClass('menu-open');
+
+    $('[data-toggle="popover"]').popover();
+
+    // Sidebar form autocomplete
+    $('.sidebar-form .autocomplete').on('keyup focus', function () {
+        var $menu = $('.sidebar-form .dropdown-menu');
+        var text = $(this).val();
+
+        if (text === '') {
+            $menu.hide();
+            return;
+        }
+
+        var regex = new RegExp(text, 'i');
+        var matched = false;
+
+        $menu.find('li').each(function () {
+            if (!regex.test($(this).find('a').text())) {
+                $(this).hide();
+            } else {
+                $(this).show();
+                matched = true;
+            }
+        });
+
+        if (matched) {
+            $menu.show();
+        }
+    }).click(function (event) {
+        event.stopPropagation();
+    });
+
+    $('.sidebar-form .dropdown-menu li a').click(function () {
+        $('.sidebar-form .autocomplete').val($(this).text());
+    });
+});

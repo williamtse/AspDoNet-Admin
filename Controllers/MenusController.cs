@@ -17,17 +17,15 @@ namespace MvcMovie.Controllers
 {
     public class MenusController : AController
     {
-        private readonly MvcMovieContext _context;
-
-        public MenusController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context) : base(_httpContextAccessor)
+        public MenusController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
         {
+            httpContextAccessor = _httpContextAccessor;
             _context = context;
         }
-
         // GET: Menus
         public async Task<IActionResult> Index()
         {
-            List<Menu> menus = _context.Menu.ToList<Menu>();
+            List<Menu> menus = _context.Menu.OrderBy(m=>m.Order).ToList<Menu>();
             List<Node> nodes = new List<Node>();
             Dictionary<int, Menu> dic = new Dictionary<int, Menu>();
             foreach (Menu menu in menus)
@@ -46,7 +44,7 @@ namespace MvcMovie.Controllers
             Form<Menu> form = Form(nodes);
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
-
+            Response.Headers["X-PJAX-URL"] = "/Menus";
             return View();
         }
 
@@ -56,25 +54,19 @@ namespace MvcMovie.Controllers
             if (menu != null)
             {
                 form.Edit(menu);
-                form.Action("/Menus/Edit");
-<<<<<<< HEAD
-            }
-            else
-            {
-                form.Action("/Menus/Index");
-            }
-
-=======
+                form.Method("Put");
+                form.Action("/Menus/Edit/"+menu.ID.ToString());
             }
             else
             {
                 form.Action("/Menus/Create");
             }
->>>>>>> 4f9506f35d53fa8705af9295d5a7d246a6d5c6d4
+
             form.TreeSelect("ParentID", "父级菜单", tree);
             form.Text("Title", "名称");
             form.Text("Icon", "图标");
             form.Text("Uri", "路径");
+            form.Text("Order", "排序");
             List<Role> roles = _context.Role.ToList<Role>();
             List<Option> options = new List<Option>();
             foreach(Role role in roles)
@@ -93,36 +85,12 @@ namespace MvcMovie.Controllers
             return form;
         }
         
-        // GET: Menus/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var menu = await _context.Menu
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (menu == null)
-            {
-                return NotFound();
-            }
-
-            return View(menu);
-        }
-
-        // GET: Menus/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         // POST: Menus/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost, ActionName("Index")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task Create([Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu)
+        public async Task Create([Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu, string Roles)
         {
             if (ModelState.IsValid)
             {
@@ -133,7 +101,7 @@ namespace MvcMovie.Controllers
         }
 
         // GET: Menus/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
             {
@@ -167,40 +135,23 @@ namespace MvcMovie.Controllers
         // POST: Menus/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu, string Roles)
         {
-            if (id != menu.ID)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
-                {
                     _context.Update(menu);
                     await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MenuExists(menu.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
-            return View(menu);
+
+
+            
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Menus/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpDelete, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<JsonResult> DeleteConfirmed(int id)
         {

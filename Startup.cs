@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using MvcMovie.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using MvcMovie.Models;
+using MvcMovie.Extensions;
 
 namespace MvcMovie
 {
@@ -55,7 +56,10 @@ namespace MvcMovie
             services.AddDistributedMemoryCache();
             services.AddSession();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ActionFilter>();
+            });
             services.AddDbContext<MvcMovieContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));
 

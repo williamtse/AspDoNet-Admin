@@ -32,6 +32,9 @@ namespace MvcMovie.Migrations
 
                     b.Property<string>("Permission");
 
+                    b.Property<string>("Roles")
+                        .HasColumnName("Roles");
+
                     b.Property<string>("Title");
 
                     b.Property<string>("Uri");

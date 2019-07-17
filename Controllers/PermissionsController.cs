@@ -14,12 +14,11 @@ namespace MvcMovie.Controllers
 {
     public class PermissionsController : AController
     {
-        public PermissionsController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context) : base(_httpContextAccessor)
+        public PermissionsController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
         {
+            httpContextAccessor = _httpContextAccessor;
             _context = context;
         }
-        private readonly MvcMovieContext _context;
-
 
         // GET: Permissions
         public async Task<IActionResult> Index()

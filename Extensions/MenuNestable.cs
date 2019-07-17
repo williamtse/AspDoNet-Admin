@@ -33,7 +33,7 @@ namespace MvcMovie.Extensions
                                     preConfirm: function() {
                                     return new Promise(function(resolve) {
                                             $.ajax({
-                                                method: 'post',
+                                                method: 'delete',
                                                 url: '/Menus/Delete/' + id,
                                                 data: {
                                                     _method:'delete',

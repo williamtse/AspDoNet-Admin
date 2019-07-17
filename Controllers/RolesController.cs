@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MvcMovie.Extensions;
 using MvcMovie.Models;
 
 namespace MvcMovie.Controllers
 {
-    public class RolesController : Controller
+    public class RolesController : AController
     {
-        private readonly MvcMovieContext _context;
-
-        public RolesController(MvcMovieContext context)
+        public RolesController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
         {
+            httpContextAccessor = _httpContextAccessor;
             _context = context;
         }
-
         // GET: Roles
         public async Task<IActionResult> Index()
         {

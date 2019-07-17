@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MvcMovie.Extensions;
@@ -12,7 +13,12 @@ namespace MvcMovie.Controllers
 {
     public class HomeController : AController
     {
-        public HomeController(IHttpContextAccessor _httpContextAccessor):base(_httpContextAccessor){}
+        public HomeController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
+        {
+            httpContextAccessor = _httpContextAccessor;
+            _context = context;
+
+        }
         public IActionResult Index()
         {
             return View();

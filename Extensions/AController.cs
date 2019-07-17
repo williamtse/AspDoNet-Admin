@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BootstrapHtmlHelper.Util.Tree;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MvcMovie.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,42 +11,75 @@ namespace MvcMovie.Extensions
 {
     public class AController : Controller
     {
-        protected readonly IHttpContextAccessor httpContextAccessor;
+        protected MvcMovieContext _context;
+        protected IHttpContextAccessor httpContextAccessor;
 
-        public AController(IHttpContextAccessor _httpContextAccessor)
+        protected bool isPjax()
         {
-            httpContextAccessor = _httpContextAccessor;
+            return !string.IsNullOrEmpty(httpContextAccessor.HttpContext.Request.Headers["X-PJAX"]);
         }
+        protected string TreeView()
+        {
+            List<Menu> menus = _context.Menu.OrderBy(m => m.Order).ToList<Menu>();
+            List<Node> nodes = new List<Node>();
+            Dictionary<int, Menu> dic = new Dictionary<int, Menu>();
+            foreach (Menu menu in menus)
+            {
+                Node node = new Node();
+                node.ID = menu.ID;
+                node.ParentID = menu.ParentID;
+                node.Title = menu.Title;
+                nodes.Add(node);
+                dic.Add(menu.ID, menu);
+            }
+            string path = httpContextAccessor.HttpContext.Request.Path;
+            string[] arr = path.Split('/');
+            string currentController = '/'+arr[1];
+            TreeView treeView = new TreeView(dic, nodes, currentController);
+            return treeView.GetContent();
+        }
+
         public IActionResult View()
         {
-            if (string.IsNullOrEmpty(httpContextAccessor.HttpContext.Request.Headers["X-PJAX"]))
+            if (!isPjax())
+            {
+                ViewData["treeView"] = TreeView();
                 return base.View();
+            }
+                
             else
                 return base.PartialView();
         }
 
         public IActionResult View(string viewName, object model)
         {
-            if (string.IsNullOrEmpty(httpContextAccessor.HttpContext.Request.Headers["X-PJAX"]))
+            if (!isPjax())
+            {
+                ViewData["treeView"] = TreeView();
                 return base.View(viewName, model);
-            else
-                return base.PartialView(viewName, model);
+            }
+            return base.PartialView(viewName, model);
         }
         [NonAction]
         public IActionResult View(object model)
         {
-            if (string.IsNullOrEmpty(httpContextAccessor.HttpContext.Request.Headers["X-PJAX"]))
+            if (!isPjax())
+            {
+                ViewData["treeView"] = TreeView();
                 return base.View(model);
-            else
-                return base.PartialView(model);
+            }
+                
+            return base.PartialView(model);
         }
         [NonAction]
         public IActionResult View(string viewName)
         {
-            if (string.IsNullOrEmpty(httpContextAccessor.HttpContext.Request.Headers["X-PJAX"]))
+            if (!isPjax())
+            {
+                ViewData["treeView"] = TreeView();
                 return base.View(viewName);
-            else
-                return base.PartialView(viewName);
+            }
+            return base.PartialView(viewName);
         }
     }
 }
