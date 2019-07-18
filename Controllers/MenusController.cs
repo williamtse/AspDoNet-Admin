@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BootstrapHtmlHelper.FormHelper;
-using BootstrapHtmlHelper.UI;
 using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using MvcMovie.Extensions;
 using MvcMovie.Models;
 
@@ -25,7 +22,7 @@ namespace MvcMovie.Controllers
         // GET: Menus
         public async Task<IActionResult> Index()
         {
-            List<Menu> menus = _context.Menu.OrderBy(m=>m.Order).ToList<Menu>();
+            List<Menu> menus = _context.Menu.OrderBy(m => m.Order).ToList<Menu>();
             List<Node> nodes = new List<Node>();
             Dictionary<int, Menu> dic = new Dictionary<int, Menu>();
             foreach (Menu menu in menus)
@@ -48,14 +45,14 @@ namespace MvcMovie.Controllers
             return View();
         }
 
-        private Form<Menu> Form(List<Node> tree, Menu menu=null)
+        private Form<Menu> Form(List<Node> tree, Menu menu = null)
         {
             Form<Menu> form = new Form<Menu>();
             if (menu != null)
             {
                 form.Edit(menu);
                 form.Method("Put");
-                form.Action("/Menus/Edit/"+menu.ID.ToString());
+                form.Action("/Menus/Edit/" + menu.ID.ToString());
             }
             else
             {
@@ -63,13 +60,14 @@ namespace MvcMovie.Controllers
             }
 
             form.TreeSelect("ParentID", "父级菜单", tree);
-            form.Text("Title", "名称");
+            form.Text("Title", "名称", true);
             form.Text("Icon", "图标");
             form.Text("Uri", "路径");
             form.Text("Order", "排序");
+
             List<Role> roles = _context.Role.ToList<Role>();
             List<Option> options = new List<Option>();
-            foreach(Role role in roles)
+            foreach (Role role in roles)
             {
                 options.Add(new Option { value = role.ID.ToString(), text = role.Name });
             }
@@ -84,7 +82,7 @@ namespace MvcMovie.Controllers
             form.Select("Permission", "权限", options2);
             return form;
         }
-        
+
         // POST: Menus/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -96,8 +94,26 @@ namespace MvcMovie.Controllers
             {
                 _context.Add(menu);
                 await _context.SaveChangesAsync();
+                await AddRoleMenu(menu.ID, Roles);
+            }
+            else
+            {
+                GetErrorListFromModelState(ModelState);
             }
             httpContextAccessor.HttpContext.Response.Redirect($"/Menus/Index");
+        }
+
+        private async Task AddRoleMenu(int MenuID, string Roles)
+        {
+            string[] roleIds = Roles.Split(',');
+            foreach (string RoleID in roleIds)
+            {
+                RoleMenu roleMenu = new RoleMenu();
+                roleMenu.MenuID = MenuID;
+                roleMenu.RoleID = int.Parse(RoleID);
+                _context.Add(roleMenu);
+                await _context.SaveChangesAsync();
+            }
         }
 
         // GET: Menus/Edit/5
@@ -141,8 +157,12 @@ namespace MvcMovie.Controllers
         {
             if (ModelState.IsValid)
             {
-                    _context.Update(menu);
-                    await _context.SaveChangesAsync();
+                _context.Update(menu);
+                await _context.SaveChangesAsync();
+
+                List<RoleMenu> roleMenus = _context.RoleMenu.Where<RoleMenu>(rm => rm.MenuID == id).ToList<RoleMenu>();
+                _context.RemoveRange(roleMenus);
+                await AddRoleMenu(id, Roles);
             }
 
 

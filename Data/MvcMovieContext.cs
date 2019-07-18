@@ -21,5 +21,7 @@ namespace MvcMovie.Models
         public DbSet<MvcMovie.Models.Role> Role { get; set; }
 
         public DbSet<MvcMovie.Models.Menu> Menu { get; set; }
+
+        public DbSet<MvcMovie.Models.RoleMenu> RoleMenu { get; set; }
     }
 }

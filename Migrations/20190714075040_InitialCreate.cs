@@ -14,8 +14,8 @@ namespace MvcMovie.Migrations
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ParentID = table.Column<int>(nullable: false),
-                    Order = table.Column<int>(nullable: false),
-                    Title = table.Column<string>(nullable: true),
+                    Order = table.Column<int>(nullable: true),
+                    Title = table.Column<string>(nullable: false),
                     Icon = table.Column<string>(nullable: true),
                     Uri = table.Column<string>(nullable: true),
                     Permission = table.Column<string>(nullable: true)
@@ -31,8 +31,8 @@ namespace MvcMovie.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true),
-                    Slug = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(nullable: false),
+                    Slug = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

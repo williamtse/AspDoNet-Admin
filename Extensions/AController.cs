@@ -1,12 +1,14 @@
 ﻿using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MvcMovie.Models;
+using MvcMovie.Utils;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 namespace MvcMovie.Extensions
 {
     public class AController : Controller
@@ -37,6 +39,16 @@ namespace MvcMovie.Extensions
             string currentController = '/'+arr[1];
             TreeView treeView = new TreeView(dic, nodes, currentController);
             return treeView.GetContent();
+        }
+
+        protected void GetErrorListFromModelState(ModelStateDictionary modelState)
+        {
+            var query = from state in modelState.Values
+                        from error in state.Errors
+                        select error.ErrorMessage;
+
+            var errorList = query.ToList();
+            httpContextAccessor.HttpContext.Session.Set<List<string>>("errors", errorList);
         }
 
         public IActionResult View()
