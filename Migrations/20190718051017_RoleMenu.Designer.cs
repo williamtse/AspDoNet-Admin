@@ -9,8 +9,8 @@ using MvcMovie.Models;
 namespace MvcMovie.Migrations
 {
     [DbContext(typeof(MvcMovieContext))]
-    [Migration("20190718034349_addIDToRoleMenu")]
-    partial class addIDToRoleMenu
+    [Migration("20190718051017_RoleMenu")]
+    partial class RoleMenu
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

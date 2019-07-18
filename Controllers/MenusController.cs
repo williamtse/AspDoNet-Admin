@@ -94,6 +94,7 @@ namespace MvcMovie.Controllers
             {
                 _context.Add(menu);
                 await _context.SaveChangesAsync();
+                if(Roles!=null)
                 await AddRoleMenu(menu.ID, Roles);
             }
             else
@@ -162,6 +163,7 @@ namespace MvcMovie.Controllers
 
                 List<RoleMenu> roleMenus = _context.RoleMenu.Where<RoleMenu>(rm => rm.MenuID == id).ToList<RoleMenu>();
                 _context.RemoveRange(roleMenus);
+                if(Roles!=null)
                 await AddRoleMenu(id, Roles);
             }
 

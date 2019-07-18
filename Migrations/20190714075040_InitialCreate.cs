@@ -42,6 +42,8 @@ namespace MvcMovie.Migrations
                 name: "RoleMenu",
                 columns: table => new
                 {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleID = table.Column<int>(nullable: false),
                     MenuID = table.Column<int>(nullable: false)
                 },
@@ -55,6 +57,8 @@ namespace MvcMovie.Migrations
                 name: "RolePermission",
                 columns: table => new
                 {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleID = table.Column<int>(nullable: false),
                     PermissionID = table.Column<int>(nullable: false)
                 },
@@ -68,6 +72,8 @@ namespace MvcMovie.Migrations
                 name: "RoleUser",
                 columns: table => new
                 {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RoleID = table.Column<int>(nullable: false),
                     UserID = table.Column<int>(nullable: false)
                 },
@@ -81,6 +87,8 @@ namespace MvcMovie.Migrations
                 name: "UserPermission",
                 columns: table => new
                 {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(nullable: false),
                     PermissionID = table.Column<int>(nullable: false)
                 },
