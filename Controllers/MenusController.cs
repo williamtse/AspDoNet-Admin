@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BootstrapHtmlHelper.FormHelper;
+using BootstrapHtmlHelper.FormHelper.Fields;
 using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,48 +39,30 @@ namespace MvcMovie.Controllers
             ViewData["menuList"] = nestable.GetContent();
             ViewData["nestableScript"] = nestable.GetScript();
 
-            Form<Menu> form = Form(nodes);
+            Form<Menu> form = Form(nodes, new Menu());
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             Response.Headers["X-PJAX-URL"] = "/Menus";
             return View();
         }
 
-        private Form<Menu> Form(List<Node> tree, Menu menu = null)
+        private Form<Menu> Form(List<Node> tree, Menu menu)
         {
-            Form<Menu> form = new Form<Menu>();
-            if (menu != null)
-            {
-                form.Edit(menu);
-                form.Method("Put");
-                form.Action("/Menus/Edit/" + menu.ID.ToString());
-            }
-            else
-            {
-                form.Action("/Menus/Create");
-            }
-
-            form.TreeSelect("ParentID", "父级菜单", tree);
-            form.Text("Title", "名称", true);
-            form.Text("Icon", "图标");
-            form.Text("Uri", "路径");
-            form.Text("Order", "排序");
+            Form<Menu> form = new Form<Menu>(menu, (m)=>m.ID);
+            form.AddField(new TreeSelect("ParentID", "父级菜单", tree))
+                .AddField(new Text("Title", "名称", "text", true))
+                .AddField(new Text("Icon", "图标"))
+                .AddField(new Text("Uri", "路径"))
+                .AddField(new Text("Order", "排序"));
 
             List<Role> roles = _context.Role.ToList<Role>();
-            List<Option> options = new List<Option>();
-            foreach (Role role in roles)
-            {
-                options.Add(new Option { value = role.ID.ToString(), text = role.Name });
-            }
-            form.MultipleSelect("Roles", "角色", options);
+            
+            form.AddField(new MultipleSelect("Roles", "角色", Option.GetOptions<Role>(roles, (r) => r.ID.ToString(), (r) => r.Name)));
 
             List<Permission> permissions = _context.Permission.ToList<Permission>();
-            List<Option> options2 = new List<Option>();
-            foreach (Permission permission in permissions)
-            {
-                options2.Add(new Option { value = permission.ID.ToString(), text = permission.Name });
-            }
-            form.Select("Permission", "权限", options2);
+
+            form.AddField(new Select("Permission", "权限", Option.GetOptions<Permission>(permissions, (p)=>p.ID.ToString(), (p)=>p.Name)));
+
             return form;
         }
 
@@ -113,7 +96,6 @@ namespace MvcMovie.Controllers
                 roleMenu.MenuID = MenuID;
                 roleMenu.RoleID = int.Parse(RoleID);
                 _context.Add(roleMenu);
-                await _context.SaveChangesAsync();
             }
         }
 
@@ -143,6 +125,21 @@ namespace MvcMovie.Controllers
                 nodes.Add(node);
                 dic.Add(m.ID, menu);
             }
+
+            //给Roles赋值
+            List<RoleMenu> roleMenus = _context.RoleMenu
+                .Where(fullEntity => fullEntity.MenuID == id)
+                .ToList<RoleMenu>();
+            List<string> roles = new List<string>();
+            foreach(RoleMenu rm in roleMenus)
+            {
+                roles.Add(rm.RoleID.ToString());
+            }
+            if (roles.Count > 0)
+            {
+                menu.SetRoles(string.Join(",", roles));
+            }
+
             Form<Menu> form = Form(nodes, menu);
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
@@ -159,12 +156,13 @@ namespace MvcMovie.Controllers
             if (ModelState.IsValid)
             {
                 _context.Update(menu);
-                await _context.SaveChangesAsync();
-
+                
                 List<RoleMenu> roleMenus = _context.RoleMenu.Where<RoleMenu>(rm => rm.MenuID == id).ToList<RoleMenu>();
                 _context.RemoveRange(roleMenus);
                 if(Roles!=null)
                 await AddRoleMenu(id, Roles);
+
+                await _context.SaveChangesAsync();
             }
 
 

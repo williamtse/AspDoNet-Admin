@@ -8,8 +8,8 @@ using MvcMovie.Models;
 namespace MvcMovie.Migrations
 {
     [DbContext(typeof(MvcMovieContext))]
-    [Migration("20190718080927_init")]
-    partial class init
+    [Migration("20190718110334_initCreate")]
+    partial class initCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -83,6 +83,34 @@ namespace MvcMovie.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("RoleMenu");
+                });
+
+            modelBuilder.Entity("MvcMovie.Models.RolePermission", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("PermissionID");
+
+                    b.Property<int>("RoleID");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("RolePermission");
+                });
+
+            modelBuilder.Entity("MvcMovie.Models.RoleUser", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("RoleID");
+
+                    b.Property<int>("UserID");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("RoleUser");
                 });
 
             modelBuilder.Entity("MvcMovie.Models.User", b =>

@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MvcMovie.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class initCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,10 +11,10 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     ParentID = table.Column<int>(nullable: false),
-                    Order = table.Column<int>(nullable: true),
-                    Title = table.Column<string>(nullable: false),
+                    Order = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
                     Icon = table.Column<string>(nullable: true),
                     Uri = table.Column<string>(nullable: true),
                     Permission = table.Column<string>(nullable: true)
@@ -26,31 +25,47 @@ namespace MvcMovie.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Permission",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("MySQL:AutoIncrement", true),
+                    Slug = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    HttpMethods = table.Column<string>(nullable: true),
+                    HttpPath = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Permission", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: false),
-                    Slug = table.Column<string>(nullable: false)
+                        .Annotation("MySQL:AutoIncrement", true),
+                    Name = table.Column<string>(nullable: true),
+                    Slug = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Role", x => x.ID);
                 });
+
             migrationBuilder.CreateTable(
                 name: "RoleMenu",
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     RoleID = table.Column<int>(nullable: false),
                     MenuID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.ForeignKey("FK_RoleMenu_RoleID", x => x.RoleID, "Role", "ID");
-                    table.ForeignKey("FK_RoleMenu_MenuID", x => x.MenuID, "Menu", "ID");
+                    table.PrimaryKey("PK_RoleMenu", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,14 +73,13 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     RoleID = table.Column<int>(nullable: false),
                     PermissionID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.ForeignKey("FK_RolePermission_RoleID", x => x.RoleID, "Role", "ID");
-                    table.ForeignKey("FK_RolePermission_PermissionID", x => x.PermissionID, "Permission", "ID");
+                    table.PrimaryKey("PK_RolePermission", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,29 +87,31 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     RoleID = table.Column<int>(nullable: false),
                     UserID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.ForeignKey("FK_RoleUser_RoleID", x => x.RoleID, "Role", "ID");
-                    table.ForeignKey("FK_RoleUser_UserID", x => x.UserID, "User", "ID");
+                    table.PrimaryKey("PK_RoleUser", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserPermission",
+                name: "User",
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserID = table.Column<int>(nullable: false),
-                    PermissionID = table.Column<int>(nullable: false)
+                        .Annotation("MySQL:AutoIncrement", true),
+                    Username = table.Column<string>(nullable: true),
+                    Password = table.Column<string>(nullable: true),
+                    Salt = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    Avatar = table.Column<string>(nullable: true),
+                    RememberToken = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.ForeignKey("FK_UserPermission_UserID", x => x.UserID, "User", "ID");
-                    table.ForeignKey("FK_UserPermission_PermissionID", x => x.PermissionID, "Permission", "ID");
+                    table.PrimaryKey("PK_User", x => x.ID);
                 });
         }
 
@@ -103,6 +119,9 @@ namespace MvcMovie.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Menu");
+
+            migrationBuilder.DropTable(
+                name: "Permission");
 
             migrationBuilder.DropTable(
                 name: "Role");
@@ -117,7 +136,7 @@ namespace MvcMovie.Migrations
                 name: "RoleUser");
 
             migrationBuilder.DropTable(
-                name: "UserPermission");
+                name: "User");
         }
     }
 }

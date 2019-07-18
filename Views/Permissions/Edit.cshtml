@@ -1,13 +1,12 @@
 ﻿@model MvcMovie.Models.Permission
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit";
     var formHtml = ViewData["formHtml"];
     var script = ViewData["script"];
 }
 
 <h2>Edit</h2>
 
-<h4>Permission</h4>
 <hr />
 <div class="row">
     <div class="col-md-8">
@@ -19,7 +18,9 @@
     <a asp-action="Index">Back to List</a>
 </div>
 <script>
+
     $(function () {
+
         @Html.Raw(script)
     });
 </script>

@@ -18,5 +18,17 @@ namespace MvcMovie.Models
         public string Icon { get; set; }
         public string Uri { get; set; }
         public string Permission { get; set; }
+
+        private string Roles;
+
+        public void SetRoles(string _roles)
+        {
+            Roles = _roles;
+        }
+
+        public string GetRoles()
+        {
+            return Roles;
+        }
     }
 }

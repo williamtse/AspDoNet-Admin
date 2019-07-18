@@ -10,5 +10,17 @@ namespace MvcMovie.Models
         public int ID { get; set; }
         public string Name { get; set; }
         public string Slug { get; set; }
+
+        private string Permissions;
+
+        public void setPermissions(string permissions)
+        {
+            Permissions = permissions;
+        }
+
+        public string getPermissions()
+        {
+            return Permissions;
+        }
     }
 }

@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 
 namespace MvcMovie.Models
 {
-    public class RolePermission
+    public class RoleMenuDetail
     {
         public int ID { get; set; }
         public int RoleID { get; set; }
-        public int PermissionID { get; set; }
+        public int MenuID { get; set; }
+        public string RoleName { get; set; }
+        public string MenuTitle { get; set; }
     }
 }

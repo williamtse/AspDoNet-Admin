@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BootstrapHtmlHelper.FormHelper;
+using BootstrapHtmlHelper.FormHelper.Fields;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -44,7 +45,7 @@ namespace MvcMovie.Controllers
             return View(permission);
         }
 
-        public Form<Permission> Form()
+        public Form<Permission> Form(Permission permission)
         {
             List<Option> options = new List<Option>();
 
@@ -57,19 +58,18 @@ namespace MvcMovie.Controllers
             options.Add(new Option { text = "TRACE", value = "TRACE" });
             options.Add(new Option { text = "PATCH", value = "PATCH" });
 
-            Form<Permission> form = new Form<Permission>();
-            form.Text("Slug", "标识");
-            form.Text("Name", "名称");
-            form.MultipleSelect("HttpMethods", "Http方法", options);
-            form.Textarea("HttpPath", "Http路径");
+            Form<Permission> form = new Form<Permission>(permission, (m) => m.ID);
+            form.AddField(new Text("Slug", "标识", "text", true));
+            form.AddField(new Text("Name", "名称", "text", true));
+            form.AddField(new MultipleSelect("HttpMethods", "Http方法", options));
+            form.AddField(new Textarea("HttpPath", "Http路径"));
             return form;
         }
 
         // GET: Permissions/Create
         public IActionResult Create()
         {
-            Form<Permission> form = Form();
-            form.Action("/Permissions/Create");
+            Form<Permission> form = Form(new Permission());
             ViewData["formHtml"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
@@ -105,9 +105,7 @@ namespace MvcMovie.Controllers
                 return NotFound();
             }
 
-            Form<Permission> form = Form();
-            form.Action("/Permissions/Edit/"+id.ToString());
-            form.Edit(permission);
+            Form<Permission> form = Form(permission);
             ViewData["formHtml"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View(permission);

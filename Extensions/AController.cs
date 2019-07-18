@@ -1,4 +1,5 @@
-﻿using BootstrapHtmlHelper.Util.Tree;
+﻿using BootstrapHtmlHelper.FormHelper;
+using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -8,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 namespace MvcMovie.Extensions
 {
@@ -20,6 +22,9 @@ namespace MvcMovie.Extensions
         {
             return !string.IsNullOrEmpty(httpContextAccessor.HttpContext.Request.Headers["X-PJAX"]);
         }
+
+        
+
         protected string TreeView()
         {
             List<Menu> menus = _context.Menu.OrderBy(m => m.Order).ToList<Menu>();

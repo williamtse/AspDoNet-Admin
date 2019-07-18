@@ -7,6 +7,7 @@ namespace MvcMovie.Models
 {
     public class UserPermission
     {
+        public int ID { get; set; }
         public int UserID { get; set; }
         public int PermissionID { get; set; }
     }

@@ -2,37 +2,26 @@
 
 @{
     ViewData["Title"] = "Create";
+    var formHtml = ViewData["form"];
+    var script = ViewData["script"];
 }
 
 <h2>Create</h2>
 
-<h4>Role</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" pjax-container>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Slug" class="control-label"></label>
-                <input asp-for="Slug" class="form-control" />
-                <span asp-validation-for="Slug" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </form>
+    <div class="col-md-8">
+        @Html.Raw(formHtml)
     </div>
 </div>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+<script>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    $(function () {
+
+        @Html.Raw(script)
+    });
+</script>
