@@ -12,7 +12,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Slug = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     HttpMethods = table.Column<string>(nullable: true),

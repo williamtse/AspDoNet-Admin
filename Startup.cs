@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MvcMovie.Middlewares;
-using Microsoft.EntityFrameworkCore;
 using MvcMovie.Models;
 using MvcMovie.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace MvcMovie
 {
@@ -61,7 +56,7 @@ namespace MvcMovie
                 options.Filters.Add<ActionFilter>();
             });
             services.AddDbContext<MvcMovieContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("MvcMovieContext")));
+                    options.UseMySQL(Configuration.GetConnectionString("mysql")));
 
             
         }

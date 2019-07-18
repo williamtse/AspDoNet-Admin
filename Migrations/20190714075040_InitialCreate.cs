@@ -12,7 +12,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ParentID = table.Column<int>(nullable: false),
                     Order = table.Column<int>(nullable: true),
                     Title = table.Column<string>(nullable: false),
@@ -30,7 +30,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: false),
                     Slug = table.Column<string>(nullable: false)
                 },
@@ -43,7 +43,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     RoleID = table.Column<int>(nullable: false),
                     MenuID = table.Column<int>(nullable: false)
                 },
@@ -58,7 +58,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     RoleID = table.Column<int>(nullable: false),
                     PermissionID = table.Column<int>(nullable: false)
                 },
@@ -73,7 +73,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     RoleID = table.Column<int>(nullable: false),
                     UserID = table.Column<int>(nullable: false)
                 },
@@ -88,7 +88,7 @@ namespace MvcMovie.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(nullable: false),
                     PermissionID = table.Column<int>(nullable: false)
                 },
