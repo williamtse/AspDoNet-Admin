@@ -14,5 +14,29 @@ namespace MvcMovie.Models
         public string Name { get; set; }
         public string Avatar { get; set; }
         public string RememberToken { get; set; }
+
+        private string Roles;
+
+        private string Permissions;
+
+        public void SetRoles(string roles)
+        {
+            Roles = roles;
+        }
+
+        public void SetPermissions(string permissions)
+        {
+            Permissions = permissions;
+        }
+
+        public string GetRoles()
+        {
+            return Roles;
+        }
+
+        public string GetPermissions()
+        {
+            return Permissions;
+        }
     }
 }

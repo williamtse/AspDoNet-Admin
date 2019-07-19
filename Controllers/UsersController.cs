@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BootstrapHtmlHelper.FormHelper;
+using BootstrapHtmlHelper.FormHelper.Fields;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,6 +24,25 @@ namespace MvcMovie.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.User.ToListAsync());
+        }
+
+        protected Form<User> Form(User user)
+        {
+            Form<User> form = new Form<User>(user, (u)=>u.ID);
+            form.AddField(new Text("UserName", "用户名", "text", true))
+                .AddField(new Text("Password", "密码", "password", true))
+                .AddField(new Text("ConfirmPassword", "确认密码", "password", true))
+                .AddField(new MultipleSelect("Roles", "角色", Option.GetOptions<Role>(
+                    _context.Role.ToList<Role>(), 
+                    (r)=>r.ID.ToString(), 
+                    (r)=>r.Name
+                    )))
+                .AddField(new MultipleSelect("Permissions", "权限", Option.GetOptions<Permission>(
+                    _context.Permission.ToList<Permission>(),
+                    (r) => r.ID.ToString(),
+                    (r) => r.Name
+                    )));
+            return form;
         }
 
         // GET: Users/Details/5
@@ -45,6 +66,9 @@ namespace MvcMovie.Controllers
         // GET: Users/Create
         public IActionResult Create()
         {
+            Form<User> form = Form(new Models.User());
+            ViewData["formHtml"] = form.GetContent();
+            ViewData["script"] = form.GetScript();
             return View();
         }
 
@@ -61,6 +85,7 @@ namespace MvcMovie.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            
             return View(user);
         }
 
@@ -77,7 +102,11 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+
+            Form<User> form = Form(user);
+            ViewData["formHtml"] = form.GetContent();
+            ViewData["script"] = form.GetScript();
+            return View();
         }
 
         // POST: Users/Edit/5
