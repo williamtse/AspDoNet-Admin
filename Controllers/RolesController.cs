@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MvcMovie.Extensions;
 using MvcMovie.Models;
+using MvcMovie.Utils;
 
 namespace MvcMovie.Controllers
 {
@@ -117,6 +118,14 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
+
+            List<RolePermission> rolePermissions = _context.RolePermission
+                .Where((rp) => rp.RoleID == id)
+                .ToList<RolePermission>();
+
+            if(rolePermissions.Count>0)
+                role.SetPermissions(String.Join(',', ArrayHelper.GetFieldsString<RolePermission>(rolePermissions, (rp)=>rp.ID.ToString())));
+
             Form<Role> form = Form(role);
             
             ViewData["form"] = form.GetContent();

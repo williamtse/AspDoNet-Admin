@@ -120,8 +120,14 @@
   <data name="Login" xml:space="preserve">
     <value>登陆</value>
   </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
   <data name="Password" xml:space="preserve">
     <value>密码</value>
+  </data>
+  <data name="Slug" xml:space="preserve">
+    <value>标识</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>用户名</value>

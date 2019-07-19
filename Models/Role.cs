@@ -13,12 +13,12 @@ namespace MvcMovie.Models
 
         private string Permissions;
 
-        public void setPermissions(string permissions)
+        public void SetPermissions(string permissions)
         {
             Permissions = permissions;
         }
 
-        public string getPermissions()
+        public string GetPermissions()
         {
             return Permissions;
         }
