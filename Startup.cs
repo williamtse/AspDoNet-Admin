@@ -82,7 +82,7 @@ namespace Admin
         {
             app.UseSession();
             app.UseLoginMiddleware();
-
+            app.UseRbacMiddleware();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

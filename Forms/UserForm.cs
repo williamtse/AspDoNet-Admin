@@ -16,9 +16,9 @@ namespace Admin.Forms
         public Form GetForm()
         {
             Form form = new Form();
-            form.AddField(new Text("UserName", "用户名", "text", true))
+            form.AddField(new Text("Username", "用户名", "text", true))
                     .AddField(new Image("Avatar", "头像"))
-                    .AddField(new Image("Name", "姓名"))
+                    .AddField(new Text("Name", "姓名"))
                     .AddField(new Text("Password", "密码", "password", true))
                     .AddField(new Text("ConfirmPassword", "确认密码", "password", true))
                     .AddField(new MultipleSelect("Roles", "角色", Roles))
@@ -28,12 +28,12 @@ namespace Admin.Forms
 
         public void SetPermissions(List<Option> options)
         {
-            Roles = options;
+            Permissions = options;
         }
 
         public void SetRoles(List<Option> options)
         {
-            Permissions = options;
+            Roles = options;
         }
     }
 }

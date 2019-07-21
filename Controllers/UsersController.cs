@@ -129,6 +129,7 @@ namespace Admin.Controllers
             BindObject.CopyModel(uvm, user);
             uvm.Permissions = rbac.GetUserPermissions(user);
             uvm.Roles = rbac.GetUserRoles(user);
+            uvm.ConfirmPassword = user.Password;
             Form form = Form();
             form.Model(uvm, "ID");
             ViewData["formHtml"] = form.GetContent();
@@ -139,7 +140,7 @@ namespace Admin.Controllers
         // POST: Users/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel)
         {
@@ -153,14 +154,14 @@ namespace Admin.Controllers
             {
                 try
                 {
-                    var oldUser = await _context.User.FindAsync(id);
+                    var oldUser = _context.User.Find(id);
                     if (oldUser.Password != user.Password)
                     {
                         HashPair hash = Encrypt.Password(user.Password);
                         user.Password = hash.Hashed;
                         user.Salt = hash.Salt;
                     }
-                    _context.Update(user); //更新用户信息
+                    _context.Entry(oldUser).CurrentValues.SetValues(user); //更新用户信息
                     //编辑用户权限
                     rbac.RemoveUserAuthorities(user); //删除旧权限
                     rbac.AddUserRoles(user, userViewModel.Roles);//增添新用户角色对应关系
@@ -184,7 +185,7 @@ namespace Admin.Controllers
             {
                 GetErrorListFromModelState(ModelState);
             }
-            return View(user);
+            return await Edit(id);
         }
 
         // GET: Users/Delete/5
