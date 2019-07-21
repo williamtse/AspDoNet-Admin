@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MvcMovie.Models;
+using Admin.Models;
 
-namespace MvcMovie.Migrations
+namespace Admin.Migrations
 {
-    [DbContext(typeof(MvcMovieContext))]
-    partial class MvcMovieContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AdminContext))]
+    partial class AdminContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -15,7 +15,7 @@ namespace MvcMovie.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.11-servicing-32099");
 
-            modelBuilder.Entity("MvcMovie.Models.Menu", b =>
+            modelBuilder.Entity("Admin.Models.Menu", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -37,7 +37,7 @@ namespace MvcMovie.Migrations
                     b.ToTable("Menu");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.Permission", b =>
+            modelBuilder.Entity("Admin.Models.Permission", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -55,7 +55,7 @@ namespace MvcMovie.Migrations
                     b.ToTable("Permission");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.Role", b =>
+            modelBuilder.Entity("Admin.Models.Role", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -69,7 +69,7 @@ namespace MvcMovie.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.RoleMenu", b =>
+            modelBuilder.Entity("Admin.Models.RoleMenu", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -83,7 +83,7 @@ namespace MvcMovie.Migrations
                     b.ToTable("RoleMenu");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.RolePermission", b =>
+            modelBuilder.Entity("Admin.Models.RolePermission", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -97,7 +97,7 @@ namespace MvcMovie.Migrations
                     b.ToTable("RolePermission");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.RoleUser", b =>
+            modelBuilder.Entity("Admin.Models.RoleUser", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();
@@ -111,7 +111,7 @@ namespace MvcMovie.Migrations
                     b.ToTable("RoleUser");
                 });
 
-            modelBuilder.Entity("MvcMovie.Models.User", b =>
+            modelBuilder.Entity("Admin.Models.User", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd();

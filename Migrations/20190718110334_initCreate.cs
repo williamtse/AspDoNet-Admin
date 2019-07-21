@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace MvcMovie.Migrations
+namespace Admin.Migrations
 {
     public partial class initCreate : Migration
     {

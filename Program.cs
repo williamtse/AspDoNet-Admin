@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MvcMovie.Models;
+using Admin.Models;
 
-namespace MvcMovie
+namespace Admin
 {
     public class Program
     {
@@ -25,7 +25,7 @@ namespace MvcMovie
                 try
                 {
                     var context = services.
-                        GetRequiredService<MvcMovieContext>();
+                        GetRequiredService<AdminContext>();
                     context.Database.Migrate();
                     SeedData.Initialize(services);
                 }

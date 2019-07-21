@@ -8,14 +8,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MvcMovie.Extensions;
-using MvcMovie.Models;
+using Admin.Extensions;
+using Admin.Models;
+using Admin.IForms;
+using Admin.ViewModels;
 
-namespace MvcMovie.Controllers
+namespace Admin.Controllers
 {
     public class PermissionsController : AController
     {
-        public PermissionsController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
+        private readonly IPermissionForm _form;
+        public PermissionsController(IHttpContextAccessor _httpContextAccessor, 
+            AdminContext context,
+            IPermissionForm form)
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;
@@ -45,31 +50,16 @@ namespace MvcMovie.Controllers
             return View(permission);
         }
 
-        public Form<Permission> Form(Permission permission)
+        public Form Form()
         {
-            List<Option> options = new List<Option>();
-
-            options.Add(new Option { text = "GET", value = "GET" });
-            options.Add(new Option { text = "POST", value = "POST" });
-            options.Add(new Option { text = "PUT", value = "PUT" });
-            options.Add(new Option { text = "DELET", value = "DELET" });
-            options.Add(new Option { text = "CONNECT", value = "CONNECT" });
-            options.Add(new Option { text = "OPTIONS", value = "OPTIONS" });
-            options.Add(new Option { text = "TRACE", value = "TRACE" });
-            options.Add(new Option { text = "PATCH", value = "PATCH" });
-
-            Form<Permission> form = new Form<Permission>(permission, (m) => m.ID);
-            form.AddField(new Text("Slug", "标识", "text", true));
-            form.AddField(new Text("Name", "名称", "text", true));
-            form.AddField(new MultipleSelect("HttpMethods", "Http方法", options));
-            form.AddField(new Textarea("HttpPath", "Http路径"));
-            return form;
+            return _form.GetForm();
         }
 
         // GET: Permissions/Create
         public IActionResult Create()
         {
-            Form<Permission> form = Form(new Permission());
+            Form form = Form();
+            form.Model(new PermissionViewModel(), "ID");
             ViewData["formHtml"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
@@ -104,8 +94,9 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
-
-            Form<Permission> form = Form(permission);
+            PermissionViewModel pvm = new PermissionViewModel();
+            Form form = Form();
+            form.Model(pvm, "ID");
             ViewData["formHtml"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View(permission);
@@ -116,8 +107,9 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Slug,Name,HttpMethods,HttpPath")] Permission permission)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Slug,Name,HttpMethods,HttpPath")] PermissionViewModel permissionViewModel)
         {
+            Permission permission = permissionViewModel.GetEntity();
             if (id != permission.ID)
             {
                 return NotFound();
@@ -142,6 +134,10 @@ namespace MvcMovie.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                GetErrorListFromModelState(ModelState);
             }
             return View(permission);
         }

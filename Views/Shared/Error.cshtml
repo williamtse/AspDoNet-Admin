@@ -1,22 +1,20 @@
-﻿@model ErrorViewModel
+﻿@using  Microsoft.AspNetCore.Http;
+@using  Admin.Utils;
+@inject IHttpContextAccessor _httpContextAccessor
 @{
-    ViewData["Title"] = "Error";
+    List<string> errors = _httpContextAccessor.HttpContext.Session.Get<List<string>>("errors");
+    List<string> errorList = new List<string>();
+    if (errors != null)
+    {
+        errorList = errors;
+        _httpContextAccessor.HttpContext.Session.Remove("errors");
+    }
 }
-
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
+@foreach (var err in errorList)
 {
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h4><i class="icon fa fa-ban"></i> 警告!</h4>
+        @err
+    </div>
 }
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>Development environment should not be enabled in deployed applications</strong>, as it can result in sensitive information from exceptions being displayed to end users. For local debugging, development environment can be enabled by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>, and restarting the application.
-</p>

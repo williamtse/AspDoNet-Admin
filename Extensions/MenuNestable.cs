@@ -1,12 +1,12 @@
 ﻿using BootstrapHtmlHelper.UI;
 using BootstrapHtmlHelper.Util.Tree;
-using MvcMovie.Models;
+using Admin.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MvcMovie.Extensions
+namespace Admin.Extensions
 {
     sealed class MenuNestable:Nestable
     {

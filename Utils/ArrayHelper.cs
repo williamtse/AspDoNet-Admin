@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace MvcMovie.Utils
+namespace Admin.Utils
 {
     public class ArrayHelper
     {

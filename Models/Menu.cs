@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MvcMovie.Models
+namespace Admin.Models
 {
     public class Menu
     {
@@ -18,17 +18,5 @@ namespace MvcMovie.Models
         public string Icon { get; set; }
         public string Uri { get; set; }
         public string Permission { get; set; }
-
-        private string Roles;
-
-        public void SetRoles(string _roles)
-        {
-            Roles = _roles;
-        }
-
-        public string GetRoles()
-        {
-            return Roles;
-        }
     }
 }

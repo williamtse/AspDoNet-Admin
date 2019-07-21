@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Admin.Attributes;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MvcMovie.Models
+namespace Admin.Models
 {
-    public class User
+    public class User:Entity
     {
         public int ID { get; set; }
         public string Username { get; set; }
@@ -14,29 +16,5 @@ namespace MvcMovie.Models
         public string Name { get; set; }
         public string Avatar { get; set; }
         public string RememberToken { get; set; }
-
-        private string Roles;
-
-        private string Permissions;
-
-        public void SetRoles(string roles)
-        {
-            Roles = roles;
-        }
-
-        public void SetPermissions(string permissions)
-        {
-            Permissions = permissions;
-        }
-
-        public string GetRoles()
-        {
-            return Roles;
-        }
-
-        public string GetPermissions()
-        {
-            return Permissions;
-        }
     }
 }

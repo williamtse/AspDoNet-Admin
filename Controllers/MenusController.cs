@@ -7,18 +7,29 @@ using BootstrapHtmlHelper.FormHelper.Fields;
 using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MvcMovie.Extensions;
-using MvcMovie.Models;
+using Admin.Extensions;
+using Admin.Interface;
+using Admin.Models;
+using Admin.IForms;
+using Admin.ViewModels;
+using Admin.IService;
+using Admin.Utils;
 
-
-namespace MvcMovie.Controllers
+namespace Admin.Controllers
 {
     public class MenusController : AController
     {
-        public MenusController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
+        private readonly IMenuForm _form;
+        private readonly IRbacService _rbac;
+        public MenusController(IHttpContextAccessor _httpContextAccessor, 
+            AdminContext context,
+            IMenuForm menuForm,
+            IRbacService rbacService)
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;
+            _form = menuForm;
+            _rbac = rbacService;
         }
         // GET: Menus
         public async Task<IActionResult> Index()
@@ -39,31 +50,22 @@ namespace MvcMovie.Controllers
             ViewData["menuList"] = nestable.GetContent();
             ViewData["nestableScript"] = nestable.GetScript();
 
-            Form<Menu> form = Form(nodes, new Menu());
+            Form form = Form();
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             Response.Headers["X-PJAX-URL"] = "/Menus";
             return View();
         }
 
-        private Form<Menu> Form(List<Node> tree, Menu menu)
+        private Form Form()
         {
-            Form<Menu> form = new Form<Menu>(menu, (m)=>m.ID);
-            form.AddField(new TreeSelect("ParentID", "父级菜单", tree))
-                .AddField(new Text("Title", "名称", "text", true))
-                .AddField(new Text("Icon", "图标"))
-                .AddField(new Text("Uri", "路径"))
-                .AddField(new Text("Order", "排序"));
-
             List<Role> roles = _context.Role.ToList<Role>();
-            
-            form.AddField(new MultipleSelect("Roles", "角色", Option.GetOptions<Role>(roles, (r) => r.ID.ToString(), (r) => r.Name)));
-
+            _form.SetPermissions(Option.GetOptions<Role>(roles, (r) => r.ID.ToString(), (r) => r.Name));
             List<Permission> permissions = _context.Permission.ToList<Permission>();
-
-            form.AddField(new Select("Permission", "权限", Option.GetOptions<Permission>(permissions, (p)=>p.ID.ToString(), (p)=>p.Name)));
-
-            return form;
+            _form.SetRoles(Option.GetOptions<Permission>(permissions, (p) => p.ID.ToString(), (p) => p.Name));
+            List<Menu> menus = _context.Menu.ToList<Menu>();
+            _form.SetTree(Builder.ListToNodes<Menu>(menus, (p) => p.ID, (m)=>m.ParentID, (p) => p.Title));
+            return _form.GetForm();
         }
 
         // POST: Menus/Create
@@ -71,32 +73,22 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task Create([Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu, string Roles)
+        public async Task Create([Bind("ID,ParentID,Order,Title,Icon,Uri,Permission,Roles")] MenuViewModel menuViewModel)
         {
+            Menu menu = menuViewModel.GetEntity();
             if (ModelState.IsValid)
             {
                 _context.Add(menu);
+
+                if (menuViewModel.Roles != null)
+                    _rbac.UpdateMenuRoles(menu, menuViewModel.Roles);
                 await _context.SaveChangesAsync();
-                if(Roles!=null)
-                await AddRoleMenu(menu.ID, Roles);
             }
             else
             {
                 GetErrorListFromModelState(ModelState);
             }
-            httpContextAccessor.HttpContext.Response.Redirect($"/Menus/Index");
-        }
-
-        private async Task AddRoleMenu(int MenuID, string Roles)
-        {
-            string[] roleIds = Roles.Split(',');
-            foreach (string RoleID in roleIds)
-            {
-                RoleMenu roleMenu = new RoleMenu();
-                roleMenu.MenuID = MenuID;
-                roleMenu.RoleID = int.Parse(RoleID);
-                _context.Add(roleMenu);
-            }
+            Redirect("/Menus/Index");
         }
 
         // GET: Menus/Edit/5
@@ -112,35 +104,11 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
-
-            List<Menu> menus = _context.Menu.ToList<Menu>();
-            List<Node> nodes = new List<Node>();
-            Dictionary<int, Menu> dic = new Dictionary<int, Menu>();
-            foreach (Menu m in menus)
-            {
-                Node node = new Node();
-                node.ID = m.ID;
-                node.ParentID = m.ParentID;
-                node.Title = m.Title;
-                nodes.Add(node);
-                dic.Add(m.ID, menu);
-            }
-
-            //给Roles赋值
-            List<RoleMenu> roleMenus = _context.RoleMenu
-                .Where(fullEntity => fullEntity.MenuID == id)
-                .ToList<RoleMenu>();
-            List<string> roles = new List<string>();
-            foreach(RoleMenu rm in roleMenus)
-            {
-                roles.Add(rm.RoleID.ToString());
-            }
-            if (roles.Count > 0)
-            {
-                menu.SetRoles(string.Join(",", roles));
-            }
-
-            Form<Menu> form = Form(nodes, menu);
+            MenuViewModel mvm = new MenuViewModel();
+            BindObject.CopyModel(mvm, menu);
+            mvm.Roles = _rbac.GetMenuRoles(menu);
+            Form form = Form();
+            form.Model(mvm, "ID");
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
@@ -151,22 +119,16 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,ParentID,Order,Title,Icon,Uri,Permission")] Menu menu, string Roles)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,ParentID,Order,Title,Icon,Uri,Permission,Roles")] MenuViewModel menuViewModel)
         {
+            Menu menu = menuViewModel.GetEntity();
             if (ModelState.IsValid)
             {
                 _context.Update(menu);
-                
-                List<RoleMenu> roleMenus = _context.RoleMenu.Where<RoleMenu>(rm => rm.MenuID == id).ToList<RoleMenu>();
-                _context.RemoveRange(roleMenus);
-                if(Roles!=null)
-                await AddRoleMenu(id, Roles);
-
+                if (menuViewModel.Roles != null)
+                    _rbac.UpdateMenuRoles(menu, menuViewModel.Roles);
                 await _context.SaveChangesAsync();
             }
-
-
-            
             return RedirectToAction(nameof(Index));
         }
 
@@ -177,13 +139,9 @@ namespace MvcMovie.Controllers
         {
             var menu = await _context.Menu.FindAsync(id);
             _context.Menu.Remove(menu);
+            _rbac.RemoveMenuRoles(menu);
             await _context.SaveChangesAsync();
             return Json(new JsonResponse());
-        }
-
-        private bool MenuExists(int id)
-        {
-            return _context.Menu.Any(e => e.ID == id);
         }
     }
 }

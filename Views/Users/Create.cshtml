@@ -1,15 +1,16 @@
-﻿@model MvcMovie.Models.User
+﻿@model Admin.Models.User
 
 @{
     ViewData["Title"] = "Create";
     var formHtml = ViewData["formHtml"];
     var script = ViewData["script"];
 }
-
+@Html.Partial("Error")
 <h2>Create</h2>
 
 <h4>Permission</h4>
 <hr />
+
 <div class="row">
     <div class="col-md-8">
         @Html.Raw(formHtml)

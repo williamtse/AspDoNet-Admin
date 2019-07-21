@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using MvcMovie.Models;
-using MvcMovie.Utils;
+using Admin.Models;
+using Admin.Utils;
 using Newtonsoft.Json;
 
-namespace MvcMovie.Controllers
+namespace Admin.Controllers
 {
     public class LoginController : Controller
     {
         private readonly IStringLocalizer<LoginController> _localizer;
-        private readonly MvcMovieContext _context;
+        private readonly AdminContext _context;
 
-        public LoginController(IStringLocalizer<LoginController> localizer, MvcMovieContext context)
+        public LoginController(IStringLocalizer<LoginController> localizer, AdminContext context)
         {
             _localizer = localizer;
             _context = context;

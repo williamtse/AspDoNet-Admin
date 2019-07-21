@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using MvcMovie.Models;
-using MvcMovie.Utils;
+using Admin.Models;
+using Admin.Utils;
 
-namespace MvcMovie.Middlewares
+namespace Admin.Middlewares
 {
     // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
     public class LoginMiddleware

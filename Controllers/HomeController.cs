@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MvcMovie.Extensions;
-using MvcMovie.Models;
+using Admin.Extensions;
+using Admin.Models;
 
-namespace MvcMovie.Controllers
+namespace Admin.Controllers
 {
     public class HomeController : AController
     {
-        public HomeController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
+        public HomeController(IHttpContextAccessor _httpContextAccessor, AdminContext context)
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;

@@ -10,20 +10,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using MvcMovie.Extensions;
-using MvcMovie.Models;
-using MvcMovie.Utils;
+using Admin.Extensions;
+using Admin.Models;
+using Admin.Utils;
+using Admin.IForms;
+using Admin.IViewModels;
+using Admin.ViewModels;
+using Admin.IService;
 
-namespace MvcMovie.Controllers
+namespace Admin.Controllers
 {
     public class RolesController : AController
     {
+        private IRoleForm _form;
+        private readonly IRbacService _rbac;
         private readonly IStringLocalizer<LoginController> Localizer;
-        public RolesController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context, IStringLocalizer<LoginController> localizer)
+        public RolesController(IHttpContextAccessor _httpContextAccessor, 
+            AdminContext context, 
+            IStringLocalizer<LoginController> localizer,
+            IRoleForm roleForm,
+            IRbacService rbac)
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;
             Localizer = localizer;
+            _form = roleForm;
+            _rbac = rbac;
+
         }
         // GET: Roles
         public async Task<IActionResult> Index()
@@ -49,55 +62,35 @@ namespace MvcMovie.Controllers
             return View(role);
         }
 
-        
-
-        private Form<Role> Form(Role role)
+        private Form Form()
         {
-            Form<Role> form = new Form<Role>(role, (m) => m.ID);
-
-            form.AddField(new Text("Slug", Localizer["Slug"], "text" ,true));
-            form.AddField(new Text("Name", Localizer["Name"], "text", true));
             List<Permission> permissions = _context.Permission.ToList<Permission>();
-            form.AddField(new MultipleSelect("Permissions", Localizer["Permissions"], Option.GetOptions<Permission>(permissions, (p) => p.ID.ToString(), (p) => Localizer[p.Name])));
-            return form;
+            _form.SetPermissions(Option.GetOptions<Permission>(permissions, (p) => p.ID.ToString(), (p) => Localizer[p.Name]));
+            return _form.GetForm();
         }
 
         // GET: Roles/Create
         public IActionResult Create()
         {
-            Form<Role> form = Form(new Role());
+            Form form = Form();
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
         }
 
-        private void AddRolePermissions(int roleId, string Permissions)
-        {
-            List<RolePermission> rps = new List<RolePermission>();
-            foreach (string PermissionID in Permissions.Split(','))
-            {
-                rps.Add(new RolePermission
-                {
-                    RoleID = roleId,
-                    PermissionID = int.Parse(PermissionID)
-                });
-            }
-            if (rps.Count > 0)
-                _context.RolePermission.AddRange(rps);
-        }
-        
         // POST: Roles/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Slug")] Role role, string Permissions)
+        public async Task<IActionResult> Create([Bind("ID,Name,Slug,Permissioins")] RoleViewModel roleViewModel)
         {
+            Role role = roleViewModel.GetEntity();
             if (ModelState.IsValid)
             {
                 _context.Add(role);
 
-                AddRolePermissions(role.ID, Permissions);
+                _rbac.AddRolePermissions(role.ID, roleViewModel.Permissions);
 
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -119,15 +112,11 @@ namespace MvcMovie.Controllers
                 return NotFound();
             }
 
-            List<RolePermission> rolePermissions = _context.RolePermission
-                .Where((rp) => rp.RoleID == id)
-                .ToList<RolePermission>();
-
-            if(rolePermissions.Count>0)
-                role.SetPermissions(String.Join(',', ArrayHelper.GetFieldsString<RolePermission>(rolePermissions, (rp)=>rp.ID.ToString())));
-
-            Form<Role> form = Form(role);
-            
+            RoleViewModel roleViewModel = new RoleViewModel();
+            roleViewModel.Permissions = _rbac.GetRolePermissions(role);
+            Form form = Form();
+            BindObject.CopyModel(roleViewModel, role);
+            form.Model(roleViewModel, "ID");
             ViewData["form"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
@@ -138,8 +127,9 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPut]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Slug")] Role role, string Permissions)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Slug, Permissions")] RoleViewModel roleViewModel)
         {
+            Role role = roleViewModel.GetEntity();
             if (id != role.ID)
             {
                 return NotFound();
@@ -151,10 +141,9 @@ namespace MvcMovie.Controllers
                 {
                     _context.Update(role);
                     //delete old role permissions
-                    List<RolePermission> old_rps = _context.RolePermission.Where((rp)=>rp.RoleID==id).ToList<RolePermission>();
-                    _context.RemoveRange(old_rps);
                     //add new role permissions
-                    AddRolePermissions(role.ID, Permissions);
+                    _rbac.RemoveRolePermissions(role);
+                    _rbac.AddRolePermissions(role.ID, roleViewModel.Permissions);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -198,6 +187,7 @@ namespace MvcMovie.Controllers
         {
             var role = await _context.Role.FindAsync(id);
             _context.Role.Remove(role);
+            _rbac.RemoveRolePermissions(role);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

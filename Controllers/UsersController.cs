@@ -1,24 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using BootstrapHtmlHelper.FormHelper;
 using BootstrapHtmlHelper.FormHelper.Fields;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MvcMovie.Extensions;
-using MvcMovie.Models;
+using Admin.Extensions;
+using Admin.IForms;
+using Admin.Interface;
+using Admin.IService;
+using Admin.Models;
+using Admin.Utils;
+using Admin.ViewModels;
+using Admin.IViewModels;
 
-namespace MvcMovie.Controllers
+namespace Admin.Controllers
 {
     public class UsersController : AController
     {
-        public UsersController(IHttpContextAccessor _httpContextAccessor, MvcMovieContext context)
+        //RBAC权限控制接口
+        private readonly IRbacService rbac;
+        private IUserForm _userForm;
+
+        public UsersController(IHttpContextAccessor _httpContextAccessor, 
+            AdminContext context, 
+            IRbacService rbacService,
+            IUserViewModel userViewModel,
+            IUserForm userForm)
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;
+            rbac = rbacService;
+            _userForm = userForm;
         }
         // GET: Users
         public async Task<IActionResult> Index()
@@ -26,23 +39,19 @@ namespace MvcMovie.Controllers
             return View(await _context.User.ToListAsync());
         }
 
-        protected Form<User> Form(User user)
+        private Form Form()
         {
-            Form<User> form = new Form<User>(user, (u)=>u.ID);
-            form.AddField(new Text("UserName", "用户名", "text", true))
-                .AddField(new Text("Password", "密码", "password", true))
-                .AddField(new Text("ConfirmPassword", "确认密码", "password", true))
-                .AddField(new MultipleSelect("Roles", "角色", Option.GetOptions<Role>(
-                    _context.Role.ToList<Role>(), 
-                    (r)=>r.ID.ToString(), 
-                    (r)=>r.Name
-                    )))
-                .AddField(new MultipleSelect("Permissions", "权限", Option.GetOptions<Permission>(
-                    _context.Permission.ToList<Permission>(),
-                    (r) => r.ID.ToString(),
-                    (r) => r.Name
-                    )));
-            return form;
+            _userForm.SetRoles(Option.GetOptions<Role>(
+                        _context.Role.ToList<Role>(),
+                        (r) => r.ID.ToString(),
+                        (r) => r.Name
+                        ));
+            _userForm.SetPermissions(Option.GetOptions<Permission>(
+                        _context.Permission.ToList<Permission>(),
+                        (r) => r.ID.ToString(),
+                        (r) => r.Name
+                        ));
+            return _userForm.GetForm();
         }
 
         // GET: Users/Details/5
@@ -66,7 +75,9 @@ namespace MvcMovie.Controllers
         // GET: Users/Create
         public IActionResult Create()
         {
-            Form<User> form = Form(new Models.User());
+            Form form = Form();
+            UserViewModel _userViewModel = new UserViewModel();
+            form.Model(_userViewModel, "ID");
             ViewData["formHtml"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
@@ -77,16 +88,27 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Username,Password,Name,Avatar,RememberToken")] User user)
+        public async Task<IActionResult> Create([Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel)
         {
             if (ModelState.IsValid)
             {
+                User user = userViewModel.GetEntity();
+                //上传头像
+                HashPair hashPair = Encrypt.Password(userViewModel.Password);
+                user.Password = hashPair.Hashed;
+                user.Salt = hashPair.Salt;
                 _context.Add(user);
+                rbac.AddUserRoles(user, userViewModel.Roles);
+                rbac.AddUserPermissions(user, userViewModel.Permissions);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                GetErrorListFromModelState(ModelState);
+            }
             
-            return View(user);
+            return Create();
         }
 
         // GET: Users/Edit/5
@@ -103,7 +125,12 @@ namespace MvcMovie.Controllers
                 return NotFound();
             }
 
-            Form<User> form = Form(user);
+            var uvm = new UserViewModel();
+            BindObject.CopyModel(uvm, user);
+            uvm.Permissions = rbac.GetUserPermissions(user);
+            uvm.Roles = rbac.GetUserRoles(user);
+            Form form = Form();
+            form.Model(uvm, "ID");
             ViewData["formHtml"] = form.GetContent();
             ViewData["script"] = form.GetScript();
             return View();
@@ -114,8 +141,9 @@ namespace MvcMovie.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Username,Password,Name,Avatar,RememberToken")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel)
         {
+            User user = userViewModel.GetEntity();
             if (id != user.ID)
             {
                 return NotFound();
@@ -125,7 +153,18 @@ namespace MvcMovie.Controllers
             {
                 try
                 {
-                    _context.Update(user);
+                    var oldUser = await _context.User.FindAsync(id);
+                    if (oldUser.Password != user.Password)
+                    {
+                        HashPair hash = Encrypt.Password(user.Password);
+                        user.Password = hash.Hashed;
+                        user.Salt = hash.Salt;
+                    }
+                    _context.Update(user); //更新用户信息
+                    //编辑用户权限
+                    rbac.RemoveUserAuthorities(user); //删除旧权限
+                    rbac.AddUserRoles(user, userViewModel.Roles);//增添新用户角色对应关系
+                    rbac.AddUserPermissions(user, userViewModel.Permissions);//添加新用户权限对应关系
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -140,6 +179,10 @@ namespace MvcMovie.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                GetErrorListFromModelState(ModelState);
             }
             return View(user);
         }
@@ -169,6 +212,7 @@ namespace MvcMovie.Controllers
         {
             var user = await _context.User.FindAsync(id);
             _context.User.Remove(user);
+            rbac.RemoveUserAuthorities(user);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

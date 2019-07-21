@@ -3,19 +3,19 @@ using BootstrapHtmlHelper.Util.Tree;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using MvcMovie.Models;
-using MvcMovie.Utils;
+using Admin.Models;
+using Admin.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-namespace MvcMovie.Extensions
+namespace Admin.Extensions
 {
     public class AController : Controller
     {
-        protected MvcMovieContext _context;
+        protected AdminContext _context;
         protected IHttpContextAccessor httpContextAccessor;
 
         protected bool isPjax()

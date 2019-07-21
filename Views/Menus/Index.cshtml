@@ -1,29 +1,12 @@
-﻿@using  Microsoft.AspNetCore.Http;
-@using  Newtonsoft.Json;
+﻿@using  Newtonsoft.Json;
 @using  System.IO;
-@using  MvcMovie.Utils;
-@inject IHttpContextAccessor _httpContextAccessor
+@using  Admin.Utils;
 @{
     ViewData["Title"] = "Index";
     var menuList = ViewData["menuList"];
     var form = ViewData["form"];
     var script = ViewData["script"];
     var nestableScript = ViewData["nestableScript"];
-    List<string> errors = _httpContextAccessor.HttpContext.Session.Get<List<string>>("errors");
-    List<string> errorList = new List<string>();
-    if (errors != null)
-    {
-        errorList = errors;
-        _httpContextAccessor.HttpContext.Session.Remove("errors");
-    }
-}
-@foreach (var err in errorList)
-{
-    <div class="alert alert-danger alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <h4><i class="icon fa fa-ban"></i> 警告!</h4>
-        @err
-    </div>
 }
 <div class="row">
     <div class="col-sm-6">

@@ -3,27 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using MvcMovie.Models;
+using Admin.Models;
 
-namespace MvcMovie.Models
+namespace Admin.Models
 {
-    public class MvcMovieContext : DbContext
+    public class AdminContext : DbContext
     {
-        public MvcMovieContext (DbContextOptions<MvcMovieContext> options)
+        public AdminContext (DbContextOptions<AdminContext> options)
             : base(options)
         {
         }
 
-        public DbSet<MvcMovie.Models.User> User { get; set; }
+        public DbSet<Admin.Models.User> User { get; set; }
 
-        public DbSet<MvcMovie.Models.Permission> Permission { get; set; }
+        public DbSet<Admin.Models.Permission> Permission { get; set; }
 
-        public DbSet<MvcMovie.Models.Role> Role { get; set; }
+        public DbSet<Admin.Models.Role> Role { get; set; }
 
-        public DbSet<MvcMovie.Models.Menu> Menu { get; set; }
+        public DbSet<Admin.Models.Menu> Menu { get; set; }
 
-        public DbSet<MvcMovie.Models.RoleMenu> RoleMenu { get; set; }
-        public DbSet<MvcMovie.Models.RolePermission> RolePermission { get; set; }
-        public DbSet<MvcMovie.Models.RoleUser> RoleUser { get; set; }
+        public DbSet<Admin.Models.RoleMenu> RoleMenu { get; set; }
+        public DbSet<Admin.Models.RolePermission> RolePermission { get; set; }
+        public DbSet<Admin.Models.RoleUser> RoleUser { get; set; }
+        public DbSet<Admin.Models.UserPermission> UserPermission { get; set; }
     }
 }
