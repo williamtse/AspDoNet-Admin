@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Admin.Models.OperationLog>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Username)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Method)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Path)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ip)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Input)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Username)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Method)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Path)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ip)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Input)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateAt)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

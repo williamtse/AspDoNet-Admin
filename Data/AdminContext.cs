@@ -26,5 +26,6 @@ namespace Admin.Models
         public DbSet<Admin.Models.RolePermission> RolePermission { get; set; }
         public DbSet<Admin.Models.RoleUser> RoleUser { get; set; }
         public DbSet<Admin.Models.UserPermission> UserPermission { get; set; }
+        public DbSet<Admin.Models.OperationLog> OperationLog { get; set; }
     }
 }

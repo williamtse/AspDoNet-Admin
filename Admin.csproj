@@ -107,7 +107,7 @@
   <ItemGroup>
     <PackageReference Include="Alexinea.Autofac.Extensions.DependencyInjection" Version="4.2.0" />
     <PackageReference Include="Autofac.Configuration" Version="4.1.0" />
-    <PackageReference Include="BootstrapHtmlHelper" Version="4.0.3" />
+    <PackageReference Include="BootstrapHtmlHelper" Version="4.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.4">
