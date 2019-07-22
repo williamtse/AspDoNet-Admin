@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Admin.Utils;
 using Admin.IViewModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Admin.ViewModels
 {
@@ -24,7 +25,8 @@ namespace Admin.ViewModels
         public string ConfirmPassword { get; set; }
         public string Salt { get; set; }
         public string Name { get; set; }
-        public string Avatar { get; set; }
+        [BindProperty]
+        public FileUpload Avatar { get; set; }
         public string RememberToken { get; set; }
         public string Roles { get; set; }
         public string Permissions { get; set; }

@@ -13,6 +13,7 @@ using Admin.Models;
 using Admin.Utils;
 using Admin.ViewModels;
 using Admin.IViewModels;
+using System.IO;
 
 namespace Admin.Controllers
 {
@@ -88,11 +89,33 @@ namespace Admin.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel)
+        public async Task<IActionResult> Create([Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel, IFormFile Avatar)
         {
+            User user = userViewModel.GetEntity();
+            
+
             if (ModelState.IsValid)
             {
-                User user = userViewModel.GetEntity();
+                long size = Avatar.Length;
+
+                // 临时文件的路径
+                var filePath = Path.GetTempFileName();
+                //取后缀名
+                var fileN = Avatar.FileName.ToString();
+                var fileLastName = fileN.Substring(fileN.LastIndexOf(".") + 1,
+                    (fileN.Length - fileN.LastIndexOf(".") - 1));
+
+                filePath = @"wwwroot\images\" + fileN;//保存文件的路径
+                if (Avatar.Length > 0)
+                {
+                    //根据路径创建文件
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await Avatar.CopyToAsync(stream);
+                    }
+                    user.Avatar = "/images/" + fileN;
+                }
+                
                 //上传头像
                 HashPair hashPair = Encrypt.Password(userViewModel.Password);
                 user.Password = hashPair.Hashed;
