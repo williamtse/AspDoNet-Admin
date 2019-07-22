@@ -83,9 +83,11 @@ namespace Admin
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            //使用中间件
             app.UseSession();
             app.UseLoginMiddleware();
             app.UseRbacMiddleware();
+            app.UseOperationLogMiddleware();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
