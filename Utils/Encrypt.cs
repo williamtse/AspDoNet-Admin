@@ -34,7 +34,8 @@ namespace Admin.Utils
         public static HashPair Password(string password)
         {
             byte[] salt = Encrypt.GetSalt();
-            return new HashPair{ Hashed= Encrypt.GetHash(password, salt), Salt = salt.ToString() };
+            return new HashPair{ Hashed= Encrypt.GetHash(password, salt),
+                Salt = Convert.ToBase64String(salt) };
         }
 
         public static bool Check(string password, User user)

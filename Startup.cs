@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Localization;
 using Autofac;
 using Alexinea.Autofac.Extensions.DependencyInjection;
 using System;
+using Admin.IService;
+using Admin.Services;
 
 namespace Admin
 {
@@ -32,7 +34,8 @@ namespace Admin
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            
+            //文件储存类 , 使用本地储存
+            services.AddTransient<IStorageService, LocalStorage>();
             //Cookie策略配置
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -82,7 +85,7 @@ namespace Admin
         {
             app.UseSession();
             app.UseLoginMiddleware();
-
+            app.UseRbacMiddleware();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

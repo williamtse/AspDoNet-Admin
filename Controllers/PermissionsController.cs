@@ -12,6 +12,7 @@ using Admin.Extensions;
 using Admin.Models;
 using Admin.IForms;
 using Admin.ViewModels;
+using Admin.Utils;
 
 namespace Admin.Controllers
 {
@@ -24,6 +25,7 @@ namespace Admin.Controllers
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;
+            _form = form;
         }
 
         // GET: Permissions
@@ -95,6 +97,7 @@ namespace Admin.Controllers
                 return NotFound();
             }
             PermissionViewModel pvm = new PermissionViewModel();
+            BindObject.CopyModel(pvm, permission);
             Form form = Form();
             form.Model(pvm, "ID");
             ViewData["formHtml"] = form.GetContent();
@@ -105,7 +108,7 @@ namespace Admin.Controllers
         // POST: Permissions/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Slug,Name,HttpMethods,HttpPath")] PermissionViewModel permissionViewModel)
         {

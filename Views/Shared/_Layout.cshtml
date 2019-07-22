@@ -33,6 +33,7 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link href="~/css/nestable.css" rel="stylesheet">
     <link href="~/css/sweetalert2.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet">
     <style>
         ::-webkit-scrollbar {
             width: 2px;
@@ -56,6 +57,9 @@
                 background-color: rgb(46, 86, 159);
                 cursor: pointer;
             }
+        .modal {
+            z-index: 8888;
+        }
     </style>
 </head>
 
@@ -246,8 +250,8 @@
             <script src="~/js/fileinput.min.js"></script>
 
             <link href="/css/nestable.css" rel="stylesheet" />
-            <link href="~/css/toastr.min.css rel="stylesheet" />
-            <link href="~/css/fileinput.min.css rel="stylesheet" />
+            <link href="/css/toastr.min.css" rel="stylesheet" />
+            <link href="~/css/fileinput.min.css" rel="stylesheet" />
             @RenderSection("Scripts", required: false)
         <script>
             var LA = $('@Html.AntiForgeryToken()').val();

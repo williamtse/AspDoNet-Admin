@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Admin.Interface;
 using Admin.Models;
 using Admin.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace Admin.IService
 {
@@ -23,6 +24,7 @@ namespace Admin.IService
         void RemoveUserAuthorities(User user);
         void AddUserPermissions(User user, string Permissions);
         string GetRolePermissions(Role role);
+        bool Check(User user, HttpRequest request);
         void RemoveRolePermissions(Role role);
         void UpdateMenuRoles(Menu menu, string roles);
         string GetMenuRoles(Menu menu);

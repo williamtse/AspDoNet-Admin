@@ -22,17 +22,19 @@ namespace Admin.Controllers
         //RBAC权限控制接口
         private readonly IRbacService rbac;
         private IUserForm _userForm;
-
-        public UsersController(IHttpContextAccessor _httpContextAccessor, 
-            AdminContext context, 
+        private readonly IStorageService _storage;
+        public UsersController(IHttpContextAccessor _httpContextAccessor,
+            AdminContext context,
             IRbacService rbacService,
             IUserViewModel userViewModel,
-            IUserForm userForm)
+            IUserForm userForm,
+            IStorageService storage)
         {
             httpContextAccessor = _httpContextAccessor;
             _context = context;
             rbac = rbacService;
             _userForm = userForm;
+            _storage = storage;
         }
         // GET: Users
         public async Task<IActionResult> Index()
@@ -96,27 +98,15 @@ namespace Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                //上传头像
                 long size = Avatar.Length;
-
-                // 临时文件的路径
-                var filePath = Path.GetTempFileName();
-                //取后缀名
-                var fileN = Avatar.FileName.ToString();
-                var fileLastName = fileN.Substring(fileN.LastIndexOf(".") + 1,
-                    (fileN.Length - fileN.LastIndexOf(".") - 1));
-
-                filePath = @"wwwroot\images\" + fileN;//保存文件的路径
-                if (Avatar.Length > 0)
+                await _storage.Put(Avatar, "images/avatar");
+                string url = _storage.GetFileUrl();
+                if (url.Length > 0)
                 {
-                    //根据路径创建文件
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await Avatar.CopyToAsync(stream);
-                    }
-                    user.Avatar = "/images/" + fileN;
+                    user.Avatar = url;
                 }
                 
-                //上传头像
                 HashPair hashPair = Encrypt.Password(userViewModel.Password);
                 user.Password = hashPair.Hashed;
                 user.Salt = hashPair.Salt;
@@ -152,6 +142,7 @@ namespace Admin.Controllers
             BindObject.CopyModel(uvm, user);
             uvm.Permissions = rbac.GetUserPermissions(user);
             uvm.Roles = rbac.GetUserRoles(user);
+            uvm.ConfirmPassword = user.Password;
             Form form = Form();
             form.Model(uvm, "ID");
             ViewData["formHtml"] = form.GetContent();
@@ -162,9 +153,9 @@ namespace Admin.Controllers
         // POST: Users/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Username,Password,ConfirmPassword, Name,Avatar,RememberToken, Roles, Permissions")] UserViewModel userViewModel, IFormFile Avatar)
         {
             User user = userViewModel.GetEntity();
             if (id != user.ID)
@@ -176,14 +167,31 @@ namespace Admin.Controllers
             {
                 try
                 {
-                    var oldUser = await _context.User.FindAsync(id);
+                    var oldUser = _context.User.Find(id);
+                    //修改头像
+                    if (Avatar != null)
+                    {
+                        //上传头像
+                        long size = Avatar.Length;
+                        await _storage.Put(Avatar, "images/avatar");
+                        string url = _storage.GetFileUrl();
+                        if (url.Length > 0)
+                        {
+                            user.Avatar = url;
+                        }
+                    }
+                    else
+                    {
+                        user.Avatar = oldUser.Avatar;
+                    }
+                    //修改密码
                     if (oldUser.Password != user.Password)
                     {
                         HashPair hash = Encrypt.Password(user.Password);
                         user.Password = hash.Hashed;
                         user.Salt = hash.Salt;
                     }
-                    _context.Update(user); //更新用户信息
+                    _context.Entry(oldUser).CurrentValues.SetValues(user); //更新用户信息
                     //编辑用户权限
                     rbac.RemoveUserAuthorities(user); //删除旧权限
                     rbac.AddUserRoles(user, userViewModel.Roles);//增添新用户角色对应关系
@@ -207,7 +215,7 @@ namespace Admin.Controllers
             {
                 GetErrorListFromModelState(ModelState);
             }
-            return View(user);
+            return await Edit(id);
         }
 
         // GET: Users/Delete/5

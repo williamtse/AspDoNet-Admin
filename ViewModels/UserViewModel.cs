@@ -25,8 +25,7 @@ namespace Admin.ViewModels
         public string ConfirmPassword { get; set; }
         public string Salt { get; set; }
         public string Name { get; set; }
-        [BindProperty]
-        public FileUpload Avatar { get; set; }
+        public string Avatar { get; set; }
         public string RememberToken { get; set; }
         public string Roles { get; set; }
         public string Permissions { get; set; }

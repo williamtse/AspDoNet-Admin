@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Admin.ViewModels;
 using Admin.Utils;
+using System.Text.RegularExpressions;
 
 namespace Admin.Services
 {
@@ -154,6 +155,83 @@ namespace Admin.Services
             List<RoleMenu> rps = _context.RoleMenu.Where((rp) => rp.MenuID == menu.ID).ToList<RoleMenu>();
             if(rps.Count>0)
             _context.RemoveRange(rps);
+        }
+
+        public bool Check(User user, HttpRequest request)
+        {
+            if (inWhiteList(request.Path))
+            {
+                return true;
+            }
+            List<RoleUser> rus = _context.RoleUser.Where((ru) => ru.UserID == user.ID).ToList<RoleUser>();
+            List<int> roleIds = ArrayHelper.GetFieldsInt(rus, (ru) => ru.RoleID);
+            List<RolePermissionDetail> rps = _context
+                .RolePermission
+                .Join(
+                    _context.Permission, rp=>rp.PermissionID, p=>p.ID, 
+                    (rp, p)=>new RolePermissionDetail{
+                        ID =rp.ID,
+                        RoleID =rp.RoleID,
+                        PermissionID =rp.PermissionID,
+                        HttpPath =p.HttpPath,
+                        HttpMethods=p.HttpMethods
+                    }
+                )
+                .Where((rp) => roleIds.Contains(rp.RoleID))
+                .ToList<RolePermissionDetail>();
+
+            foreach(RolePermissionDetail rp in rps)
+            {
+                if (rp.HttpMethods != null && !methodAllow(rp.HttpMethods, request.Method))
+                {
+                    return false;
+                }
+                
+                string[] pathes = rp.HttpPath.Split(Environment.NewLine.ToCharArray());
+                foreach(string httpPath in pathes)
+                {
+                    Regex regex = new Regex("^"+httpPath.Replace("*",".*")+"$");
+                    if (regex.IsMatch(request.Path))
+                    {
+                        return true;
+                    }
+                }
+                
+            }
+            return false;
+        }
+
+        private bool methodAllow(string AllMethods, string method)
+        {
+            string[] methods = AllMethods.Split(',');
+            List<string> upperAllMethods = new List<string>();
+            foreach(string m in methods)
+            {
+                upperAllMethods.Add(m.ToUpper());
+            }
+            return upperAllMethods.Contains(method.ToUpper());
+        }
+
+        private bool inWhiteList(string path)
+        {
+            string[] patterns = new string[] {
+                @"^\/Login.*",
+                @"^\/Home.*",
+                @"^\/$",
+                @"^\/js.*$",
+                @"^\/css.*$",
+                @"^\/favicon.ico$",
+                @"^\/plugins.*$",
+                @"^\/img.*$"
+            };
+            foreach (string patt in patterns)
+            {
+                if (patt == path || Regex.IsMatch(path, patt))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
